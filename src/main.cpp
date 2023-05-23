@@ -59,6 +59,7 @@ void test_field_arithmetic() {
 	}
 
 	cout << "Field tests pass. " << endl;
+	return;
 
 	fieldElement::self_speed_test_add(100);
 	fieldElement::self_speed_test_mult(100);
