@@ -191,20 +191,25 @@ void DAG_to_layered() {
 
 #define REL 1
 
+#define PRIME 0x1ffffc0000001LL
+#define ROOT  416204888522856
+
 extern void DAG_to_layered();
 
 void parse(ifstream &circuit_in);
 
 int main(int argc, char **argv) {
+	F::init(PRIME, ROOT);
+	test_field_arithmetic();
+
     ifstream circuit_in(argv[REL]);
     in_circuit_dag.clear();
 
-	test_field_arithmetic();
     parse(circuit_in);
     DAG_to_layered();
 
     fclose(stdin);
-	F::init();
+
 	c.subsetInit();
     prover p(c);
     verifier v(&p, c);

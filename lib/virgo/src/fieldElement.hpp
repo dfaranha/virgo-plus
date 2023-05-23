@@ -73,7 +73,7 @@ namespace virgo {
         void print(::FILE *fileno) const;
         char *toString() const;
 
-        static void init();
+        static void init(unsigned long long prime, unsigned long long root);
         static fieldElement maxWithZero(const fieldElement &a, const fieldElement &b);
         static fieldElement maxUnsigned(const fieldElement &a, const fieldElement &b);
         static fieldElement getRootOfUnity(int log_order); //return a root of unity with log_order 2^[log_order]
@@ -86,12 +86,17 @@ namespace virgo {
 
         static fieldElement fastPow(fieldElement x, unsigned long long p);
 
+		static unsigned int maxOrder();
+
         static bool initialized;
         static int multCounter, addCounter;
         static bool isCounting;
         static bool isSumchecking;
-        static const unsigned long long mod;
-        static const int __max_order = 30;
+        static unsigned long long mod;
+		static unsigned long long rou;
+		static unsigned long long rcp;
+		static unsigned int len;
+        static unsigned int __max_order;
 
         unsigned long long elem;
 
@@ -113,7 +118,7 @@ namespace virgo {
         fieldElementPacked();
         fieldElementPacked(const fieldElement &x0, const fieldElement &x1, const fieldElement &x2, const fieldElement &x3);
 
-        static void init();
+        static void init(unsigned long long prime);
         fieldElementPacked operator + (const fieldElementPacked &b) const;
         fieldElementPacked operator * (const fieldElementPacked &b) const;
         fieldElementPacked operator - (const fieldElementPacked &b) const;
@@ -121,7 +126,7 @@ namespace virgo {
         __mmask8 operator != (const fieldElementPacked &b) const;
         void getFieldElement(fieldElement *dst) const;
 
-        static const unsigned long long mod;
+        static unsigned long long mod;
         static __m256i packed_mod, packed_mod_minus_one;
 
         static __m256i packed_mymult(const __m256i x, const __m256i y);

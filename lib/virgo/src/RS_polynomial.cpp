@@ -25,13 +25,13 @@ namespace virgo {
 
     void fast_fourier_transform(const fieldElement *coefficients, int coef_len, int order, fieldElement root_of_unity,
                                 fieldElement *result) {
-        fieldElement rot_mul[fieldElement::__max_order];
+        fieldElement rot_mul[fieldElement::maxOrder()];
         //note: malloc and free will not call the constructor and destructor, not recommended unless for efficiency
         //assert(sizeof(fieldElement) * 2 == sizeof(__hhash_digest));
         //In sake of both memory and time efficiency, use the non-recursive version
         int lg_order = -1;
         rot_mul[0] = root_of_unity;
-        for (int i = 0; i < fieldElement::__max_order; ++i) {
+        for (int i = 0; i < fieldElement::maxOrder(); ++i) {
             if (i > 0)
                 rot_mul[i] = rot_mul[i - 1] * rot_mul[i - 1];
             if ((1LL << i) == order) {
@@ -39,7 +39,7 @@ namespace virgo {
             }
         }
         int lg_coef = -1;
-        for (int i = 0; i < fieldElement::__max_order; ++i) {
+        for (int i = 0; i < fieldElement::maxOrder(); ++i) {
             if ((1LL << i) == coef_len) {
                 lg_coef = i;
             }
@@ -179,13 +179,13 @@ namespace virgo {
 
         fieldElement inv_rou = fieldElement(1), tmp = new_rou;
         int lg_order = -1;
-        for (int i = 0; i < fieldElement::__max_order; ++i) {
+        for (int i = 0; i < fieldElement::maxOrder(); ++i) {
             if ((1LL << i) == order) {
                 lg_order = i;
             }
         }
         int lg_coef = -1;
-        for (int i = 0; i < fieldElement::__max_order; ++i) {
+        for (int i = 0; i < fieldElement::maxOrder(); ++i) {
             if ((1LL << i) == coef_len) {
                 lg_coef = i;
             }

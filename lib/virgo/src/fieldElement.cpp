@@ -12,8 +12,12 @@
 using namespace std;
 
 namespace virgo {
-    const unsigned long long fieldElement::mod = 0x1ffffc0000001LL;
-    const unsigned long long fieldElementPacked::mod = 0x1ffffc0000001LL;
+    unsigned long long fieldElement::mod = 0;
+    unsigned long long fieldElementPacked::mod = 0;
+	unsigned long long fieldElement::rou = 0;
+	unsigned long long fieldElement::rcp = 0;
+	unsigned int fieldElement::len = 0;
+	unsigned int fieldElement::__max_order = 0;
     __m256i fieldElementPacked::packed_mod, fieldElementPacked::packed_mod_minus_one;
     bool fieldElement::initialized = false;
     int fieldElement::multCounter, fieldElement::addCounter;
@@ -79,18 +83,34 @@ namespace virgo {
         return zero() - *this;
     }
 
-    void fieldElement::init() {
+    void fieldElement::init(unsigned long long prime, unsigned long long root) {
         initialized = true;
         srand(3396);
         isCounting = false;
-        fieldElementPacked::init();
+		mod = prime;
+		rou = root;
+		len = 64 - __builtin_clzll(mod);
+		rcp = ((__int128_t)1 << (2 * len)) / mod;
+
+        fieldElementPacked::init(prime);
+
+		__max_order = 0;
+		prime = prime - 1;
+		while (prime % 2 == 0) {
+			__max_order++;
+			prime = prime >> 1;
+		}
     }
 
-    void fieldElementPacked::init() {
+	unsigned int fieldElement::maxOrder() {
+		return __max_order;
+	}
+
+    void fieldElementPacked::init(unsigned long long prime) {
+		mod = prime;
         packed_mod = _mm256_set_epi64x(mod, mod, mod, mod);
         packed_mod_minus_one = _mm256_set_epi64x(mod - 1, mod - 1, mod - 1, mod - 1);
     }
-
 
     fieldElement fieldElement::random() {
         fieldElement ret;
@@ -296,25 +316,19 @@ namespace virgo {
         return ret;
     }
 
-	#define MU	562951027165183
-
-	uint64_t barrett(uint64_t m1, uint64_t m0, uint64_t p) {
-			uint64_t q = ((__uint128_t)m1 * MU) >> 49;
-			uint64_t q0 = ((uint64_t)q*p) & ((1L << 49) - 1);
-			uint64_t q1 = ((__uint128_t)q*p)>>49;
-			q0 = (m0 - q0);
-			q1 = (m1 - q1) - (m0 < q0);
-			return (q0 - q1*p) & ((1L << 49) - 1);
-	}
-
     unsigned long long fieldElement::mymult(const unsigned long long int x, const unsigned long long int y) {
         //return a value between [0, 2PRIME) = x * y mod PRIME
         unsigned long long lo, hi;
 		lo = _mulx_u64(x, y, &hi);
-        hi = (hi << 15) | (lo >> 49);
-		lo = lo & ((1L << 49) - 1);
-		lo = barrett(hi, lo, mod);
-		return lo;
+        hi = (hi << (64 - len)) | (lo >> len);
+		lo = lo & ((1L << len) - 1);
+
+		uint64_t q = ((__uint128_t)hi * rcp) >> len;
+		uint64_t q0 = ((uint64_t)q*mod) & ((1L << len) - 1);
+		uint64_t q1 = ((__uint128_t)q*mod)>>len;
+		q0 = (lo - q0);
+		q1 = (hi - q1) - (lo < q0);
+		return (q0 - q1*mod) & ((1L << len) - 1);
 		/*
         unsigned long long hi;
         asm(
@@ -357,7 +371,7 @@ namespace virgo {
         return ret;
     }
 
-fieldElementPacked fieldElementPacked::operator-(const fieldElementPacked &b) const {
+	fieldElementPacked fieldElementPacked::operator-(const fieldElementPacked &b) const {
         fieldElementPacked ret;
 		__m256i tmp_r = _mm256_sub_epi64(packed_mod, b.elem);
         ret.elem = elem + tmp_r;
