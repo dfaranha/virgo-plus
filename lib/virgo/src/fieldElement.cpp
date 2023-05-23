@@ -90,7 +90,7 @@ namespace virgo {
 		mod = prime;
 		rou = root;
 		len = 64 - __builtin_clzll(mod);
-		rcp = ((__int128_t)1 << (2 * len)) / mod;
+		rcp = 1 + ((__int128_t)1 << (2 * len)) / mod;
 
         fieldElementPacked::init(prime);
 
@@ -219,16 +219,16 @@ namespace virgo {
     }
 
     fieldElement fieldElement::getRootOfUnity(int log_order) {
-        fieldElement rou;
+        fieldElement root;
         //general root of unity, have log_order 2^30
-        rou.elem = 416204888522856;
+        root.elem = rou;
 		
-        assert(log_order < 31);
+        assert(log_order <= __max_order);
 
         for (int i = 0; i < __max_order - log_order; ++i)
-            rou = rou * rou;
+            root = root * root;
 
-        return rou;
+        return root;
     }
 
     fieldElement fieldElement::zero() {
@@ -321,7 +321,7 @@ namespace virgo {
         unsigned long long lo, hi;
 		lo = _mulx_u64(x, y, &hi);
         hi = (hi << (64 - len)) | (lo >> len);
-		lo = lo & ((1L << len) - 1);
+		lo = lo & ((1LL << len) - 1);
 
 		uint64_t q = ((__uint128_t)hi * rcp) >> len;
 		uint64_t q0 = ((uint64_t)q*mod) & ((1L << len) - 1);

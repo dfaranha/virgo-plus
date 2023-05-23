@@ -17,47 +17,47 @@ using std::endl;
 
 void test_field_arithmetic() {
 	virgo::fieldElement a, b, c, d, e;
+	for (int i = 0; i < 1000; i++) {
+		a = fieldElement::random();
+		b = fieldElement::random();
+		d = 0;
 
-	a = fieldElement::random();
-	b = fieldElement::random();
-	d = 0;
+		c = fieldElement::zero();
+		assert(c == 0);
 
-	c = fieldElement::zero();
-	assert(c == 0);
+		c = fieldElement::one();
+		assert(c == 1);
 
-	c = fieldElement::one();
-	assert(c == 1);
+		c = a * b;
+		d = b * a;
+		assert(c == d);
 
-	c = a * b;
-	d = b * a;
-	assert(c == d);
+		c = fieldElement::random();
+		d = (a * b) * c;
+		e = a * (b * c);
+		assert(d == e);
 
-	c = fieldElement::random();
-	d = (a * b) * c;
-	e = a * (b * c);
-	assert(d == e);
+		c = a.inv();
+		d = a * c;
+		assert(d == 1);
 
-	c = a.inv();
-	d = a * c;
-	assert(d == 1);
+		c = -1;
+		assert(c.isNegative());
+		c = c + 1;
+		assert(!c.isNegative());
 
-	c = -1;
-	assert(c.isNegative());
-	c = c + 1;
-	assert(!c.isNegative());
+		c = a * a;
+		d = a.sqr();
+		assert(c == d);
 
-	c = a * a;
-	d = a.sqr();
-	assert(c == d);
-
-	for (int i = 1; i < 31; i++) {
-		c = fieldElement::getRootOfUnity(i);
-		for (int j = 1; j < i; j++) {
-			c = c.sqr();
+		for (int i = 1; i < fieldElement::maxOrder(); i++) {
+			c = fieldElement::getRootOfUnity(i);
+			for (int j = 1; j < i; j++) {
+				c = c.sqr();
+			}
+			assert(c == -1);
 		}
-		assert(c == -1);
 	}
-
 	cout << "Field tests pass. " << endl;
 	return;
 
@@ -193,12 +193,15 @@ void DAG_to_layered() {
 
 #define PRIME 0x1ffffc0000001LL
 #define ROOT  416204888522856
+//#define PRIME 0x2a74200000001LL
+//#define ROOT  186427948752465
 
 extern void DAG_to_layered();
 
 void parse(ifstream &circuit_in);
 
 int main(int argc, char **argv) {
+	// Configure prime field.
 	F::init(PRIME, ROOT);
 	test_field_arithmetic();
 
