@@ -254,8 +254,8 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 #define PRIME 0x1ffffc0000001LL
 #define ROOT  416204888522856
 
-//#define PRIME 0x2a74200000001LL
-//#define ROOT  186427948752465
+#define PRIME2 0x2a74200000001LL
+#define ROOT2  186427948752465
 
 int main(int argc, char **argv) {
 	layeredCircuit c;
@@ -266,8 +266,6 @@ int main(int argc, char **argv) {
 	test_field_arithmetic();
 
     ifstream circuit_in(argv[REL]);
-    in_circuit_dag.clear();
-
     parse(in_circuit_dag, circuit_in);
     DAG_to_layered(c, in_circuit_dag);
 
@@ -277,6 +275,17 @@ int main(int argc, char **argv) {
     prover p(c);
     verifier v(&p, c);
     v.verify();
-	fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
+
+    fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
+
+    // Configure another prime field.
+    F::init(PRIME2, ROOT2);
+    test_field_arithmetic();
+
+    prover p2(c);
+    verifier v2(&p2, c);
+    v2.verify();
+
+    fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
     return 0;
 }
