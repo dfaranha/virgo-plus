@@ -115,7 +115,6 @@ namespace virgo {
     fieldElement fieldElement::random() {
         fieldElement ret;
         ret.elem = randomNumber() % mod;
-        ret.elem = randomNumber() % mod;
         return ret;
     }
 
