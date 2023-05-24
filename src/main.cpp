@@ -2,18 +2,9 @@
 #include "assert.h"
 #include "verifier.h"
 #include "inputCircuit.hpp"
+
 using namespace std;
 using namespace virgo;
-using std::max;
-
-layeredCircuit c;
-vector<DAG_gate *> in_circuit_dag;
-const int repeat = 1;
-
-FILE *ins_file, *wit_file;
-
-using std::cerr;
-using std::endl;
 
 void test_field_arithmetic() {
 	virgo::fieldElement a, b, c, d, e;
@@ -65,7 +56,8 @@ void test_field_arithmetic() {
 	fieldElement::self_speed_test_mult(100);
 }
 
-void DAG_to_layered() {
+void DAG_to_layered(layeredCircuit &c, vector<DAG_gate *> in_circuit_dag) {
+	const int repeat = 1;
     vector<u64> in_deg(in_circuit_dag.size());          // in degree
     vector<int> lyr_id(in_circuit_dag.size());          // the layer of each gate
     vector<u64> id_in_lyr(in_circuit_dag.size());       // the corresponding id within the layer
@@ -189,38 +181,6 @@ void DAG_to_layered() {
     }
 }
 
-#define REL 1
-
-#define PRIME 0x1ffffc0000001LL
-#define ROOT  416204888522856
-//#define PRIME 0x2a74200000001LL
-//#define ROOT  186427948752465
-
-extern void DAG_to_layered();
-
-void parse(ifstream &circuit_in);
-
-int main(int argc, char **argv) {
-	// Configure prime field.
-	F::init(PRIME, ROOT);
-	test_field_arithmetic();
-
-    ifstream circuit_in(argv[REL]);
-    in_circuit_dag.clear();
-
-    parse(circuit_in);
-    DAG_to_layered();
-
-    fclose(stdin);
-
-	c.subsetInit();
-    prover p(c);
-    verifier v(&p, c);
-    v.verify();
-	fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
-    return 0;
-}
-
 regex add_gate("P V[0-9]+ = V[0-9]+ \\+ V[0-9]+ E");
 regex mult_gate("P V[0-9]+ = V[0-9]+ \\* V[0-9]+ E");
 regex input_gate("P V[0-9]+ = I[0-9]+ E");
@@ -232,44 +192,8 @@ regex not_gate("P V[0-9]+ = V[0-9]+ NOT V[0-9]+ E");
 
 smatch base_match;
 
-DAG_gate *buildGate(gateType ty, u64 tgt, u64 src0, u64 src1 = -1, bool has_constant = true);
-DAG_gate *buildInput(u64 tgt, u64 src0);
-void setAssertion(u64 tgt);
-
-void parse(ifstream &circuit_in) {
-    string source_line;
-    i64 tgt, src0, src1;
-    while (getline(circuit_in, source_line)) {
-        if (std::regex_match(source_line, base_match, add_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = V%lld + V%lld E", &tgt, &src0, &src1);
-            buildGate(Add, tgt, src0, src1, false);
-        } else if (std::regex_match(source_line, base_match, mult_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = V%lld * V%lld E", &tgt, &src0, &src1);
-            buildGate(Mul, tgt, src0, src1, false);
-        } else if (std::regex_match(source_line, base_match, input_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = I%lld E", &tgt, &src0);
-            buildInput(tgt, src0);
-        } else if (std::regex_match(source_line, base_match, output_gate)) {
-            sscanf(source_line.c_str(), "P O%lld = V%lld E", &tgt, &src0);
-        } else if (std::regex_match(source_line, base_match, xor_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = V%lld XOR V%lld E", &tgt, &src0, &src1);
-            buildGate(Xor, tgt, src0, src1, false);
-        } else if (std::regex_match(source_line, base_match, naab_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = V%lld NAAB V%lld E", &tgt, &src0, &src1);
-            buildGate(Naab, tgt, src0, src1, false);
-        } else if (std::regex_match(source_line, base_match, minus_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = V%lld minus V%lld E", &tgt, &src0, &src1);
-            buildGate(Sub, tgt, src0, src1, false);
-        } else if (std::regex_match(source_line, base_match, not_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = V%lld NOT V%lld E", &tgt, &src0, &src1);
-            buildGate(Not, tgt, src0, 0, true);
-        } else {
-            assert(false);
-        }
-    }
-}
-
-DAG_gate *buildGate(gateType ty, u64 tgt, u64 src0, u64 src1, bool has_constant) {
+DAG_gate *buildGate(vector<DAG_gate *> &in_circuit_dag, gateType ty, u64 tgt,
+					u64 src0, u64 src1, bool has_constant) {
 //	fprintf(stderr, "buildGate: tgt: %d, src0: %d, src1: %d, has_const: %d\n", tgt, src0, src1, (int) has_constant);
     DAG_gate *g = new DAG_gate();
     g->is_assert = false;
@@ -281,7 +205,7 @@ DAG_gate *buildGate(gateType ty, u64 tgt, u64 src0, u64 src1, bool has_constant)
     return g;
 }
 
-DAG_gate *buildInput(u64 tgt, u64 src0) {
+DAG_gate *buildInput(vector<DAG_gate *> &in_circuit_dag, u64 tgt, u64 src0) {
 //	fprintf(stderr, "buildInput: tgt: %d, src0: %d\n", tgt, src0);
     DAG_gate *g = new DAG_gate();
     g->is_assert = false;
@@ -293,7 +217,66 @@ DAG_gate *buildInput(u64 tgt, u64 src0) {
     return g;
 }
 
-void setAssertion(u64 tgt) {
-    assert(tgt < in_circuit_dag.size());
-    in_circuit_dag[tgt]->is_assert = true;
+void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
+    string source_line;
+    i64 tgt, src0, src1;
+    while (getline(circuit_in, source_line)) {
+        if (std::regex_match(source_line, base_match, add_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld + V%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Add, tgt, src0, src1, false);
+        } else if (std::regex_match(source_line, base_match, mult_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld * V%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Mul, tgt, src0, src1, false);
+        } else if (std::regex_match(source_line, base_match, input_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = I%lld E", &tgt, &src0);
+            buildInput(in_circuit_dag, tgt, src0);
+        } else if (std::regex_match(source_line, base_match, output_gate)) {
+            sscanf(source_line.c_str(), "P O%lld = V%lld E", &tgt, &src0);
+        } else if (std::regex_match(source_line, base_match, xor_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld XOR V%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Xor, tgt, src0, src1, false);
+        } else if (std::regex_match(source_line, base_match, naab_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld NAAB V%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Naab, tgt, src0, src1, false);
+        } else if (std::regex_match(source_line, base_match, minus_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld minus V%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Sub, tgt, src0, src1, false);
+        } else if (std::regex_match(source_line, base_match, not_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld NOT V%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Not, tgt, src0, 0, true);
+        } else {
+            assert(false);
+        }
+    }
+}
+
+#define REL 1
+#define PRIME 0x1ffffc0000001LL
+#define ROOT  416204888522856
+
+//#define PRIME 0x2a74200000001LL
+//#define ROOT  186427948752465
+
+int main(int argc, char **argv) {
+	layeredCircuit c;
+	vector<DAG_gate *> in_circuit_dag;
+
+	// Configure prime field.
+	F::init(PRIME, ROOT);
+	test_field_arithmetic();
+
+    ifstream circuit_in(argv[REL]);
+    in_circuit_dag.clear();
+
+    parse(in_circuit_dag, circuit_in);
+    DAG_to_layered(c, in_circuit_dag);
+
+    fclose(stdin);
+
+	c.subsetInit();
+    prover p(c);
+    verifier v(&p, c);
+    v.verify();
+	fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
+    return 0;
 }
