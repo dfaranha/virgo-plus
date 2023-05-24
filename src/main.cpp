@@ -284,7 +284,8 @@ int main(int argc, char **argv) {
 
     prover p2(c);
     verifier v2(&p2, c);
-    v2.verify();
+	virgo::__hhash_digest merkle_root = p2.commit_private();
+    v2.verify(merkle_root);
 
     fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
     return 0;

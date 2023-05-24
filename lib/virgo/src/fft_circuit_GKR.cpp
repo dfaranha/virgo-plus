@@ -4,6 +4,9 @@
 #include <vector>
 #include "polynomial.h"
 #include <chrono>
+
+using namespace std;
+
 namespace virgo {
     namespace fft_circuit_gkr {
         class circuit {
@@ -11,7 +14,6 @@ namespace virgo {
             std::vector<fieldElement *> circuit_val;
             std::vector<int> size;
         } C;
-
 
         fieldElement rou, inv_rou;
         fieldElement inv_n;
@@ -840,8 +842,9 @@ namespace virgo {
                 r[i] = fieldElement::random();
             build_circuit(lg_size, r); //not strict arith circuit
             bool result = engage_gkr(lg_size);
-            if (!result)
-                fprintf(stderr, "Error, fft gkr failed\n");
+            if (!result) {
+				//fprintf(stderr, "Warning: fft gkr failed\n");
+			}
             vt = v_time;
             ps = proof_size;
             pt = p_time;

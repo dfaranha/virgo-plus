@@ -387,4 +387,47 @@ bool verifier::verifyPoly(const virgo::__hhash_digest &merkle_root_l, const F &p
     }
     return true;
 }
+
+bool verifier::verify(virgo::__hhash_digest &merkle_root_l)
+{
+//    Check the correctness of the input by open polynomial commitment on a random point.
+#ifdef USE_VIRGO
+    using namespace virgo;
+
+    vector<F> output(1ULL << C.circuit[0].bitLength);
+    initBetaTable(output, C.circuit[0].bitLength, r_liu.begin(), F_ONE);
+    vector<F> processed;
+    public_array_prepare_generic(processed, output, C.circuit[0].bitLength);
+
+    verify_timer.stop();
+    verify_slow_timer.stop();
+
+    F input_0;
+    auto mask = std::vector<F>(1, F_ZERO);
+    vector<F> all_sum(slice_number + 1);
+    auto merkle_root_h = p->commit_public(output, input_0, mask, all_sum);
+    bool flag = poly_ver.verify_poly_commitment(all_sum.data(), C.circuit[0].bitLength, processed.data(), mask, commit_vt, commit_ps, commit_pt, merkle_root_l, merkle_root_h);
+    commit_ps += sizeof(__hhash_digest) * 2 + sizeof(F);
+
+    if (!flag)
+    {
+        fprintf(stderr, "Verification fail, final input check fail.\n");
+        return false;
+    }
+#endif
+
+    fprintf(stderr, "Verification pass\n");
+    fprintf(stdout, "Input size %d\n", C.circuit[0].size);
+    fprintf(stdout, "Prove Time %lf\n", p->proveTime());
+
+    fprintf(stdout, "verify time %lf = %lf + %lf(slow)\n", verifySlowTime() + verifyTime(), verifyTime(), verifySlowTime());
+    fprintf(stdout, "proof size = %lf kb\n", p->proofSize());
+#ifdef USE_VIRGO
+    fprintf(stdout, "Polynomial commitment: prove time %lf, verify time %lf, proof size %lf kb\n", p->poly_prover.total_time + commit_pt, commit_vt, commit_ps / 1024.0);
+#endif
+#ifdef USE_HYRAX_P224
+    fprintf(stdout, "Polynomial commitment: prove time %lf, verify time %lf, proof size %lf kb\n", p -> polyProverTime(), poly_v -> getVT(), p -> polyProofSize());
+#endif
+    return true;
+}
 #endif

@@ -10,7 +10,7 @@ class verifier
 public:
     verifier(prover *pr, const layeredCircuit &cir);
 	bool verify();
-
+	bool verify(virgo::__hhash_digest &merkle_root_l);
     double verifyTime() const;
     double verifySlowTime() const;
 
@@ -47,7 +47,7 @@ private:
 
 //    Polynomial commitment
 #ifdef USE_VIRGO
-    bool verifyPoly(const virgo::__hhash_digest &merkle_root_l, const F &previousSum);
+	bool verifyPoly(const virgo::__hhash_digest &merkle_root_l, const F &previousSum);
     virgo::poly_commit::poly_commit_verifier poly_ver;
     double commit_vt, commit_pt;
     int commit_ps;
