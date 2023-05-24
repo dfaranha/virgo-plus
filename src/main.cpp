@@ -248,7 +248,7 @@ void parse(ifstream &circuit_in) {
             buildGate(Mul, tgt, src0, src1, false);
         } else if (std::regex_match(source_line, base_match, input_gate)) {
             sscanf(source_line.c_str(), "P V%lld = I%lld E", &tgt, &src0);
-            buildInput(tgt, random() % virgo::fieldElement::mod);
+            buildInput(tgt, src0);
         } else if (std::regex_match(source_line, base_match, output_gate)) {
             sscanf(source_line.c_str(), "P O%lld = V%lld E", &tgt, &src0);
         } else if (std::regex_match(source_line, base_match, xor_gate)) {
