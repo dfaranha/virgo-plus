@@ -1,13 +1,9 @@
 #include "verifier.h"
 #include "utils.hpp"
 #include <bits/stdc++.h>
-using std::unique_ptr;
-using std::make_unique;
-using std::fill;
-using std::cerr;
-using std::endl;
-using std::max;
-using std::min;
+
+using namespace virgo;
+using namespace std;
 
 verifier::verifier(prover *pr, const layeredCircuit &cir) :
         p(pr), C(cir) {
@@ -345,7 +341,7 @@ double verifier::verifySlowTime() const {
 
 
 #ifdef USE_VIRGO
-void public_array_prepare_generic(vector<F> &q_coef_arr, vector<F> &public_array, int log_length)
+void verifier::public_array_prepare_generic(vector<F> &q_coef_arr, vector<F> &public_array, int log_length)
 {
     using namespace virgo;
 	q_coef_arr.resize(1ULL << log_length);
@@ -360,7 +356,7 @@ void public_array_prepare_generic(vector<F> &q_coef_arr, vector<F> &public_array
 	}
 }
 
-bool verifier::verifyPoly(const virgo::__hhash_digest &merkle_root_l, const F &previousSum) {
+bool verifier::verifyPoly(const __hhash_digest &merkle_root_l, const F &previousSum) {
     using namespace virgo;
     verify_timer.start();
     verify_slow_timer.start();
@@ -374,7 +370,7 @@ bool verifier::verifyPoly(const virgo::__hhash_digest &merkle_root_l, const F &p
     verify_slow_timer.stop();
 
     F input_0;
-    auto mask = std::vector<F>(1, F_ZERO);
+    auto mask = vector<F>(1, F_ZERO);
     vector<F> all_sum(slice_number + 1);
     auto merkle_root_h = p->commit_public(output, input_0, mask, all_sum);
     bool flag = poly_ver.verify_poly_commitment(all_sum.data(), C.circuit[0].bitLength, processed.data(), mask, commit_vt, commit_ps, commit_pt, merkle_root_l, merkle_root_h);
@@ -388,24 +384,13 @@ bool verifier::verifyPoly(const virgo::__hhash_digest &merkle_root_l, const F &p
     return true;
 }
 
-bool verifier::verify(virgo::__hhash_digest &merkle_root_l)
+bool verifier::verify(vector<F> &all_sum, vector<F> &processed, vector<F> &mask, __hhash_digest &merkle_root_l, __hhash_digest &merkle_root_h)
 {
 //    Check the correctness of the input by open polynomial commitment on a random point.
 #ifdef USE_VIRGO
-    using namespace virgo;
-
-    vector<F> output(1ULL << C.circuit[0].bitLength);
-    initBetaTable(output, C.circuit[0].bitLength, r_liu.begin(), F_ONE);
-    vector<F> processed;
-    public_array_prepare_generic(processed, output, C.circuit[0].bitLength);
-
     verify_timer.stop();
     verify_slow_timer.stop();
 
-    F input_0;
-    auto mask = std::vector<F>(1, F_ZERO);
-    vector<F> all_sum(slice_number + 1);
-    auto merkle_root_h = p->commit_public(output, input_0, mask, all_sum);
     bool flag = poly_ver.verify_poly_commitment(all_sum.data(), C.circuit[0].bitLength, processed.data(), mask, commit_vt, commit_ps, commit_pt, merkle_root_l, merkle_root_h);
     commit_ps += sizeof(__hhash_digest) * 2 + sizeof(F);
 

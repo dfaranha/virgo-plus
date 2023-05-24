@@ -4,13 +4,17 @@
 #include "prover.h"
 #include "config_pc.hpp"
 
+using namespace std;
+using namespace virgo;
+
 using std::unique_ptr;
 class verifier
 {
 public:
     verifier(prover *pr, const layeredCircuit &cir);
 	bool verify();
-	bool verify(virgo::__hhash_digest &merkle_root_l);
+	void public_array_prepare_generic(vector<F> &q_coef_arr, vector<F> &public_array, int log_length);
+	bool verify(vector<F> &all_sum, vector<F> &processed, vector<F> &mask, __hhash_digest &merkle_root_l, __hhash_digest &merkle_root_h);
     double verifyTime() const;
     double verifySlowTime() const;
 

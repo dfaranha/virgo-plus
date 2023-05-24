@@ -284,8 +284,18 @@ int main(int argc, char **argv) {
 
     prover p2(c);
     verifier v2(&p2, c);
-	virgo::__hhash_digest merkle_root = p2.commit_private();
-    v2.verify(merkle_root);
+
+	auto mask = vector<F>(1, F_ZERO);
+    vector<F> processed, all_sum(slice_number + 1), output(1ULL << c.circuit[0].bitLength);
+    v2.public_array_prepare_generic(processed, output, c.circuit[0].bitLength);
+
+	/* Prover. */
+    F inner_product_sum;
+	auto merkle_root_l = p2.commit_private();
+    auto merkle_root_h = p2.commit_public(output, inner_product_sum, mask, all_sum);
+
+	/* Verifier. */
+    v2.verify(all_sum, processed, mask, merkle_root_l, merkle_root_h);
 
     fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
     return 0;
