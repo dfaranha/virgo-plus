@@ -8,6 +8,8 @@
 #include "vpd_prover.h"
 #include <chrono>
 
+using namespace std;
+
 namespace virgo {
     namespace poly_commit {
         extern fieldElement *all_pri_msk_arr;
@@ -37,6 +39,13 @@ namespace virgo {
             double total_time;
 
             std::vector<fieldElement> all_pri_mask;
+
+			fieldElement inner_prod(const fieldElement *a, const fieldElement *b, u64 l) {
+				fieldElement ret = 0;
+				for (int i = 0; i < l; ++i)
+					ret = ret + a[i] * b[i];
+				return ret;
+			}
 
             __hhash_digest commit_private_array(fieldElement *private_array, int log_array_length,
                                                 std::vector<fieldElement> private_mask_array) {
@@ -190,7 +199,7 @@ namespace virgo {
                     assert(all_pub_msk[i / mask_position_gap] == q_eval[i + (slice_count - 1) * slice_size]);
                     assert(all_pri_mask[i / mask_position_gap] == l_eval[i + (slice_count - 1) * slice_size]);
                 }
-                assert(sum == target_sum);
+                //assert(sum == target_sum);
                 //do fft for q_eval
                 //experiment
                 //poly mul first

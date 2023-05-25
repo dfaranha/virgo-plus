@@ -257,6 +257,17 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 #define PRIME2 0x2a74200000001LL
 #define ROOT2  186427948752465
 
+F* public_array_prepare_generic(F *public_array, int log_length)
+{
+	F *q_coef_arr = new F[1 << log_length];
+	int coef_slice_size = (1 << (log_length - log_slice_number));
+	for(int i = 0; i < (1 << log_slice_number); ++i)
+	{
+		inverse_fast_fourier_transform(&public_array[i * coef_slice_size], coef_slice_size, coef_slice_size, F::getRootOfUnity(log_length - log_slice_number), &q_coef_arr[i * coef_slice_size]);
+	}
+	return q_coef_arr;
+}
+
 int main(int argc, char **argv) {
 	layeredCircuit c;
 	vector<DAG_gate *> in_circuit_dag;
@@ -282,21 +293,50 @@ int main(int argc, char **argv) {
     F::init(PRIME2, ROOT2);
     test_field_arithmetic();
 
-    prover p2(c);
-    verifier v2(&p2, c);
-
-	auto mask = vector<F>(1, F_ZERO);
-    vector<F> processed, all_sum(slice_number + 1), output(1ULL << c.circuit[0].bitLength);
-    v2.public_array_prepare_generic(processed, output, c.circuit[0].bitLength);
+    //prover p2(c);
+    //verifier v2(&p2, c);
+	
+	//F inner_product_sum;
+    //vector<F> processed, all_sum(slice_number + 1), output(1ULL << c.circuit[0].bitLength);
+    //v2.public_array_prepare_generic(processed, output, c.circuit[0].bitLength);
 
 	/* Prover. */
-    F inner_product_sum;
-	auto merkle_root_l = p2.commit_private();
-    auto merkle_root_h = p2.commit_public(output, inner_product_sum, mask, all_sum);
+	//auto mask2 = vector<F>(1, F_ZERO);
+	//auto merkle_root_l = p2.commit_private();
+    //auto merkle_root_h = p2.commit_public(output, inner_product_sum, mask2, all_sum);
 
 	/* Verifier. */
-    v2.verify(all_sum, processed, mask, merkle_root_l, merkle_root_h);
+    //v2.verify(all_sum, processed, mask2, merkle_root_l, merkle_root_h);
+    //fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
+	
+	/* Now just the polynomial commitment. */
+	poly_commit::poly_commit_prover prover;
+	poly_commit::poly_commit_verifier verifier;
 
-    fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
+	verifier.p = &prover;
+
+	F *all_sum = new F[slice_number + 1];
+	int log_length = 8;
+	auto all_pri_mask = vector<F>(1, F_ZERO);
+	auto all_pub_mask = vector<F>(1, F_ZERO);
+
+	/* Prover. */
+	vector<F> public_array(1 << log_length), private_array(1 << log_length);
+	for (int i = 0; i < (1 << log_length); i++) {
+		private_array[i] = fieldElement::random();
+		public_array[i] = fieldElement::random();
+	}
+	auto merkle_root_l = prover.commit_private_array(private_array.data(), log_length, all_pri_mask);
+	auto inner_product_sum = prover.inner_prod(private_array.data(), public_array.data(), private_array.size());
+	auto merkle_root_h = prover.commit_public_array(all_pub_mask, public_array.data(), log_length, inner_product_sum, all_sum);
+
+	/* Verifier. */
+	int proof_size;
+	double v_time, p_time;
+	auto processed = public_array_prepare_generic(public_array.data(), log_length);
+	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
+		cout << "Verification pass." << endl;
+	}
+
     return 0;
 }
