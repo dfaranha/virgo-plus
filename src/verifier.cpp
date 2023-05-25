@@ -388,9 +388,6 @@ bool verifier::verify(vector<F> &all_sum, vector<F> &processed, vector<F> &mask,
 {
 //    Check the correctness of the input by open polynomial commitment on a random point.
 #ifdef USE_VIRGO
-    verify_timer.stop();
-    verify_slow_timer.stop();
-
     bool flag = poly_ver.verify_poly_commitment(all_sum.data(), C.circuit[0].bitLength, processed.data(), mask, commit_vt, commit_ps, commit_pt, merkle_root_l, merkle_root_h);
     commit_ps += sizeof(__hhash_digest) * 2 + sizeof(F);
 
