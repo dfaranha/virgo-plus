@@ -251,8 +251,8 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 }
 
 #define REL 1
-#define PRIME 0x1ffffc0000001LL
-#define ROOT  416204888522856
+#define PRIME 0x1ffffff18001LL
+#define ROOT  0x7e2dfbb5e98LL
 
 #define PRIME2 0x2a74200000001LL
 #define ROOT2  186427948752465
@@ -272,13 +272,13 @@ int main(int argc, char **argv) {
 	layeredCircuit c;
 	vector<DAG_gate *> in_circuit_dag;
 
-	// Configure prime field.
-	F::init(PRIME, ROOT);
-	test_field_arithmetic();
-
     ifstream circuit_in(argv[REL]);
     parse(in_circuit_dag, circuit_in);
     DAG_to_layered(c, in_circuit_dag);
+
+	// Configure prime field.
+	F::init(PRIME, ROOT);
+	test_field_arithmetic();
 
     fclose(stdin);
 

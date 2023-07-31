@@ -12,9 +12,6 @@ using std::vector;
 using std::ostream;
 
 namespace virgo {
-	#define MASK 4294967295 //2^32-1
-	#define PRIME 0x77caf00000001L //2^31-1
-
     class fieldElementPacked;
 
     class fieldElement {
