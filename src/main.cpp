@@ -289,28 +289,6 @@ int main(int argc, char **argv) {
 
     fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
 
-    // Configure another prime field.
-    F::init(PRIME2, ROOT2);
-    test_field_arithmetic();
-
-    prover p2(c);
-    verifier v2(&p2, c);
-	
-	F inner_product_sum;
-    vector<F> processed, all_sum(slice_number + 1), output(1ULL << c.circuit[0].bitLength);
-    v2.public_array_prepare_generic(processed, output, c.circuit[0].bitLength);
-
-	/* Prover. */
-	auto mask2 = vector<F>(1, F_ZERO);
-	auto merkle_root_l = p2.commit_private();
-    auto merkle_root_h = p2.commit_public(output, inner_product_sum, mask2, all_sum);
-
-	/* Verifier. */
-    v2.verify(all_sum, processed, mask2, merkle_root_l, merkle_root_h);
-    fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
-	
-	return 0;
-#if 0
 	/* Now just the polynomial commitment. */
 	poly_commit::poly_commit_prover prover;
 	poly_commit::poly_commit_verifier verifier;
@@ -337,8 +315,8 @@ int main(int argc, char **argv) {
 	double v_time, p_time;
 	auto processed = public_array_prepare_generic(public_array.data(), log_length);
 	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
-		cout << "Verification pass." << endl;
+		cout << "Verification pass in the poly commitment!" << endl;
 	}
-#endif
+
     return 0;
 }
