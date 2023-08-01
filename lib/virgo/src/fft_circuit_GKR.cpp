@@ -36,7 +36,7 @@ namespace virgo {
             //ifft
             rou = fieldElement::getRootOfUnity(lg_size);
             inv_rou = rou.inv();
-            inv_n = fieldElement::fastPow(fieldElement((1 << lg_size)), fieldElement::mod - 2);
+            inv_n = fieldElement((1 << lg_size)).inv();
             fieldElement *x_arr = new fieldElement[1 << lg_size];
             fieldElement *rot_mul = new fieldElement[fieldElement::maxOrder()];
             rot_mul[0] = inv_rou;

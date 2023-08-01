@@ -3,23 +3,19 @@
 
 namespace virgo {
     fieldElement *__dst[3];
-    fieldElementPacked *__avx_dst[2];
     fieldElement *twiddle_factor;
 
     void init_scratch_pad(int order) {
         __dst[0] = new fieldElement[order];//(fieldElement*)malloc(order * sizeof(fieldElement));
         __dst[1] = new fieldElement[order];//(fieldElement*)malloc(order * sizeof(fieldElement));
         __dst[2] = new fieldElement[order];
-        __avx_dst[0] = new fieldElementPacked[order / packed_size];
-        __avx_dst[1] = new fieldElementPacked[order / packed_size];
         twiddle_factor = new fieldElement[order];
     }
 
     void delete_scratch_pad() {
         delete[] __dst[0];
         delete[] __dst[1];
-        delete[] __avx_dst[0];
-        delete[] __avx_dst[1];
+		delete[] __dst[2];
         delete[] twiddle_factor;
     }
 
@@ -59,88 +55,27 @@ namespace virgo {
             }
             fieldElement *x_arr = new fieldElement[1 << lg_order];
             {
-                //initialize leaves
-                int blk_sz = (order / coef_len);
-                for (int j = 0; j < blk_sz; ++j) {
-                    for (int i = 0; i < coef_len / packed_size; ++i) {
-                        __avx_dst[lg_coef & 1][((j << lg_coef) / packed_size) | i] = fieldElementPacked(
-                                coefficients[i * packed_size], coefficients[i * packed_size + 1],
-                                coefficients[i * packed_size + 2], coefficients[i * packed_size + 3]);
-                    }
-                }
+				for (int dep = lg_coef - 1; dep >= 0; --dep) {
+					int blk_size = 1 << (lg_order - dep);
+					int half_blk_size = blk_size >> 1;
+					int cur = dep & 1;
+					int pre = cur ^ 1;
 
-                {
-                    for (int dep = lg_coef - 1; dep >= 0; --dep) {
-                        int blk_size = 1 << (lg_order - dep);
-                        int half_blk_size = blk_size >> 1;
-                        int cur = dep & 1;
-                        int pre = cur ^ 1;
-
-                        fieldElement x = fieldElement(1);
-                        fieldElementPacked x_pack = fieldElementPacked(fieldElement(1), fieldElement(1),
-                                                                       fieldElement(1), fieldElement(1));
-                        fieldElementPacked x_multplier = fieldElementPacked(rot_mul[dep], rot_mul[dep], rot_mul[dep],
-                                                                            rot_mul[dep]);
-
-                        if ((1 << dep) >= packed_size) {
-                            for (int k = 0; k < blk_size / 2; ++k) {
-                                int double_k = (k) & (half_blk_size - 1);
-                                for (int j = 0; j < (1 << dep) / (packed_size); ++j) {
-                                    auto l_value = __avx_dst[pre][(double_k << (dep + 1)) / packed_size | j];
-                                    auto r_value = x_pack *
-                                                   __avx_dst[pre][(double_k << (dep + 1) | (1 << dep)) / packed_size |
-                                                                  j];
-                                    __avx_dst[cur][(k << dep) / packed_size | j] = l_value + r_value;
-                                    __avx_dst[cur][((k + blk_size / 2) << dep) / packed_size | j] = l_value - r_value;
-                                }
-                                x_pack = x_pack * x_multplier;
-                            }
-                        } else {
-                            //unrolling loop
-                            fieldElement sav[4];
-                            if (dep == 1) {
-                                x_pack = fieldElementPacked(fieldElement(1), fieldElement(1), rot_mul[dep], rot_mul[dep]);
-                                x_multplier = fieldElementPacked(rot_mul[dep] * rot_mul[dep],
-                                                                 rot_mul[dep] * rot_mul[dep],
-                                                                 rot_mul[dep] * rot_mul[dep],
-                                                                 rot_mul[dep] * rot_mul[dep]);
-                                for (int k = 0; k < blk_size / packed_size * 2; ++k) {
-                                    int double_k_0 = (k << 1) & (half_blk_size - 1);
-                                    int double_k_1 = ((k << 1) | 1) & (half_blk_size - 1);
-                                    fieldElementPacked double_k_0_pack = __avx_dst[pre][double_k_0], double_k_1_pack = __avx_dst[pre][double_k_1];
-                                    fieldElementPacked odd_pack, even_pack;
-                                    odd_pack.elem = _mm256_permute2x128_si256(double_k_0_pack.elem,
-                                                                              double_k_1_pack.elem, 1 | (3 << 4));
-
-                                    even_pack.elem = _mm256_permute2x128_si256(double_k_0_pack.elem,
-                                                                               double_k_1_pack.elem, 0 | (2 << 4));
-
-                                    __avx_dst[cur][k] = even_pack + x_pack * odd_pack;
-                                    __avx_dst[cur][k].getFieldElement(sav);
-
-                                    for (int shift = 0; shift < 4; ++shift) {
-                                        __dst[cur][k * packed_size + shift] = sav[shift];
-                                    }
-                                    x_pack = x_pack * x_multplier;
-                                }
-                            } else if (dep == 0) {
-                                x_arr[0] = fieldElement(1);
-                                for (int j = 1; j < blk_size; ++j)
-                                    x_arr[j] = x_arr[j - 1] * rot_mul[dep];
-                                for (int k = 0; k < blk_size / 2; ++k) {
-                                    int double_k = (k) & (half_blk_size - 1);
-                                    for (int j = 0; j < (1 << dep); ++j) {
-                                        auto l_value = __dst[pre][double_k << (dep + 1) | j], r_value =
-                                                x_arr[k] * __dst[pre][double_k << (dep + 1) | (1 << dep) | j];
-                                        __dst[cur][k << dep | j] = l_value + r_value;
-                                        __dst[cur][(k + blk_size / 2) << dep | j] = l_value - r_value;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+					fieldElement sav[4];
+					x_arr[0] = fieldElement(1);
+					for (int j = 1; j < blk_size; ++j)
+						x_arr[j] = x_arr[j - 1] * rot_mul[dep];
+					for (int k = 0; k < blk_size / 2; ++k) {
+						int double_k = (k) & (half_blk_size - 1);
+						for (int j = 0; j < (1 << dep); ++j) {
+							auto l_value = __dst[pre][double_k << (dep + 1) | j], r_value =
+									x_arr[k] * __dst[pre][double_k << (dep + 1) | (1 << dep) | j];
+							__dst[cur][k << dep | j] = l_value + r_value;
+							__dst[cur][(k + blk_size / 2) << dep | j] = l_value - r_value;
+						}
+					}
+				}
+			}
             delete[] x_arr;
         }
 
@@ -203,7 +138,7 @@ namespace virgo {
         if (need_free)
             free(sub_eval);
 
-        fieldElement inv_n = fieldElement::fastPow(fieldElement(order), fieldElement::mod - 2);
+        fieldElement inv_n = fieldElement(order).inv();
         assert(inv_n * fieldElement(order) == fieldElement(1));
 
         for (int i = 0; i < coef_len; ++i) {

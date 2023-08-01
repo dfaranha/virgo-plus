@@ -10,5 +10,5 @@ namespace virgo {
     const int rs_code_rate = 5;
     const int max_bit_length = 30;
 
-    const int packed_size = 4; //4 unsigned long long packed
+    const int packed_size = 1; //4 unsigned long long packed
 }
