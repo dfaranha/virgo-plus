@@ -251,8 +251,8 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 }
 
 #define REL 1
-#define PRIME 0x1ffffff18001LL
-#define ROOT  0x7e2dfbb5e98LL
+#define PRIME 0xfffffa000000001LL
+#define ROOT  0x7b1b94e93e3ec91
 
 #define PRIME2 0x2a74200000001LL
 #define ROOT2  186427948752465
