@@ -41,7 +41,7 @@ namespace virgo {
             }
         }
         assert(lg_order != -1 && lg_coef != -1);
-        assert(rot_mul[lg_order].elem == 1);
+        assert(rot_mul[lg_order] == 1);
         //we can merge both cases, but I just don't want to do so since it's easy to make mistake
         if (lg_coef > lg_order) {
             assert(false);

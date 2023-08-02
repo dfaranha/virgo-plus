@@ -12,6 +12,8 @@
 using std::vector;
 using std::ostream;
 
+#define MOD_LIMBS	1
+
 namespace virgo {
     class fieldElementPacked;
 
@@ -90,13 +92,12 @@ namespace virgo {
         static int multCounter, addCounter;
         static bool isCounting;
         static bool isSumchecking;
-        static mp_limb_t mod;
-		static mp_limb_t rou;
-		static mp_limb_t rcp;
+        static mp_limb_t mod[MOD_LIMBS];
+		static mp_limb_t rou[MOD_LIMBS];
 		static unsigned int len;
         static unsigned int __max_order;
 
-        mp_limb_t elem;
+        mp_limb_t elem[MOD_LIMBS];
 
         static double self_speed_test_mult(int repeat);
         static double self_speed_test_add(int repeat);
