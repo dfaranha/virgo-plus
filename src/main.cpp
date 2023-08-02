@@ -254,8 +254,8 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 #define PRIME 0x1ffffff18001LL
 #define ROOT  0x7e2dfbb5e98LL
 
-#define PRIME2 0x2a74200000001LL
-#define ROOT2  186427948752465
+unsigned char prime[] = {0xE5, 0x2C, 0x2F, 0xE8, 0x69, 0x72, 0x31, 0xF8, 0x87, 0x65, 0xD9, 0xC2, 0x44, 0xB5, 0x80, 0x01};
+unsigned char root[]  = {0x0E, 0x5D, 0xC7, 0x11, 0x98, 0x9D, 0x5C, 0x05, 0x03, 0xCB, 0x3F, 0xD3, 0x2C, 0x3F, 0xAE, 0x19};
 
 F* public_array_prepare_generic(F *public_array, int log_length)
 {
@@ -277,7 +277,7 @@ int main(int argc, char **argv) {
     DAG_to_layered(c, in_circuit_dag);
 
 	// Configure prime field.
-	F::init(PRIME, ROOT);
+	F::init(prime, root, sizeof(prime));
 	test_field_arithmetic();
 
     fclose(stdin);

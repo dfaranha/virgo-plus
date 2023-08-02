@@ -101,6 +101,22 @@ namespace virgo {
 		}
     }
 
+	void fieldElement::init(const unsigned char *prime, const unsigned char *root, int size) {
+        initialized = true;
+        srand(3396);
+        isCounting = false;
+		mpn_set_str(mod, prime, size, 256);
+		mpn_set_str(rou, root, size, 256);
+		len = 64 * MOD_LIMBS - __builtin_clzll(mod[MOD_LIMBS - 1]);
+
+		__max_order = 0;
+		mp_limb_t low = mod[0] - 1;
+		while (low % 2 == 0) {
+			__max_order++;
+			low = low >> 1;
+		}
+	}
+
 	unsigned int fieldElement::maxOrder() {
 		return __max_order;
 	}
@@ -185,16 +201,17 @@ namespace virgo {
     fieldElement fieldElement::inv() const {
 		fieldElement ret;
 		mp_size_t cn;
-		mp_limb_t s[1], t[2];
+		mp_limb_t s[MOD_LIMBS], t[2 * MOD_LIMBS], u[MOD_LIMBS + 1] = {0};
 
-		memcpy(s, &mod, sizeof(mp_limb_t));
+		memcpy(u, elem, MOD_LIMBS * sizeof(mp_limb_t));
+		memcpy(s, &mod, MOD_LIMBS*sizeof(mp_limb_t));
 
-		mpn_gcdext(t, ret.elem, &cn, (mp_ptr)elem, MOD_LIMBS, s, MOD_LIMBS);
+		mpn_gcdext(t, ret.elem, &cn, (mp_ptr)u, MOD_LIMBS, s, MOD_LIMBS);
 		if (cn < 0) {
-			memset(ret.elem - cn, 0, (1 + cn)*sizeof(mp_limb_t));
+			memset(ret.elem - cn, 0, (MOD_LIMBS + cn)*sizeof(mp_limb_t));
 			mpn_sub_n(ret.elem, mod, ret.elem, MOD_LIMBS);
 		} else {
-			memset(ret.elem + cn, 0, (1 - cn)*sizeof(mp_limb_t));
+			memset(ret.elem + cn, 0, (MOD_LIMBS - cn)*sizeof(mp_limb_t));
 		}
 
 		return ret;
