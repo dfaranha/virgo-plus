@@ -11,7 +11,7 @@ linear_poly interpolate(const F &zero_v, const F &one_v) {
     return {one_v - zero_v, zero_v};
 }
 
-prover::prover(const layeredCircuit &cir): C(cir), proof_size(0) {
+prover::prover(layeredCircuit &cir): C(cir), proof_size(0) {
     evaluate();
     for (int i = 0; i < cir.size; ++i) {
         for (int j = 0; j < C.circuit[i].gates.size(); ++j) {
@@ -85,7 +85,7 @@ void prover::evaluate()
                 default:
                     assert(false);
             }
-
+            C.circuit[i].gates[g].c = circuitValue[i][g];
         }
     }
 }

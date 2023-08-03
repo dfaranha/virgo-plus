@@ -4,6 +4,7 @@
 
 #ifndef UNLAYERED_LIBRA_CONFIG_PC_HPP
 #define UNLAYERED_LIBRA_CONFIG_PC_HPP
+#define USE_VIRGO
 
 #ifdef USE_VIRGO
 #include <virgo/polyCommit.hpp>

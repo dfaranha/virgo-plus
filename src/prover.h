@@ -12,7 +12,7 @@ using std::unique_ptr;
 class prover
 {
 public:
-	explicit prover(const layeredCircuit &cir);
+	explicit prover(layeredCircuit &cir);
 	void evaluate();
 	void init();
     void sumcheckInitAll(const vector<F>::const_iterator &r_last);
@@ -45,7 +45,7 @@ private:
     quadratic_poly sumcheckUpdate(const F &previous_random, vector<F> &r_arr, int n_pre_layer);
     quadratic_poly sumcheckUpdateEach(const F &previous_random, int idx);
 
-    const layeredCircuit &C;
+    layeredCircuit &C;
     vector<vector<F>> circuitValue;
 
     vector<F> r_u, r_liu;
