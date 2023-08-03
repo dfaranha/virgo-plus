@@ -7,7 +7,13 @@
 #define USE_VIRGO
 
 #ifdef USE_VIRGO
-#include <virgo/polyCommit.hpp>
+#include "poly_commit.h"
+#include "timer.hpp"
+#include "fieldElement.hpp"
+#include "polynomial.h"
+#include "RS_polynomial.h"
+#include "constants.h"
+#include "my_hhash.h"
 #define F   virgo::fieldElement
 #define F_ONE   virgo::fieldElement::one()
 #define F_ZERO  virgo::fieldElement::zero()

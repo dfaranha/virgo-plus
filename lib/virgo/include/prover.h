@@ -9,6 +9,8 @@
 #include "polynomial.h"
 
 using std::unique_ptr;
+using namespace virgo;
+
 class prover
 {
 public:

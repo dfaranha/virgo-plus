@@ -20,7 +20,7 @@ verifier::verifier(prover *pr, const layeredCircuit &cir) :
     p->init();
 
     int max_bl = 0;
-    for (auto &c: C.circuit) max_bl = max(max_bl, c.bitLength);
+    for (auto &c: C.circuit) max_bl = MAX(max_bl, c.bitLength);
     int max_dad_bl = 0;
     for (auto &c: C.circuit) max_dad_bl = max(max_dad_bl, c.maxDadBitLength);
     beta_g.resize(1ULL << max(max_bl, max_dad_bl));
@@ -35,7 +35,7 @@ verifier::verifier(prover *pr, const layeredCircuit &cir) :
     }
     sig.resize(C.size);
 
-    initBetaTable(beta_g, max(max_bl, max_dad_bl), r_u.begin(), F::zero());
+    initBetaTable(beta_g, MAX(max_bl, max_dad_bl), r_u.begin(), F::zero());
 
 #ifdef USE_VIRGO
     commit_pt = commit_vt = 0.0;

@@ -7,6 +7,8 @@ using std::endl;
 using std::max;
 using std::min;
 
+using namespace virgo;
+
 linear_poly interpolate(const F &zero_v, const F &one_v) {
     return {one_v - zero_v, zero_v};
 }

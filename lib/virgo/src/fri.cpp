@@ -4,7 +4,6 @@
 #include "constants.h"
 #include "RS_polynomial.h"
 #include <utility>
-#include "utility.h"
 #include <algorithm>
 #include "poly_commit.h"
 

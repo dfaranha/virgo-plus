@@ -1,7 +1,7 @@
 #undef NDEBUG
 #include "assert.h"
-#include "verifier.h"
-#include "inputCircuit.hpp"
+#include "../lib/virgo/include/verifier.h"
+#include "../lib/virgo/include/inputCircuit.hpp"
 
 using namespace std;
 using namespace virgo;
