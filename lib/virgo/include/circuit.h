@@ -23,7 +23,7 @@ public:
     F c;
     bool is_assert;
 	gate() { }
-	gate(gateType t, int ll, u64 uu, u64 vv, const F &cc, bool is_assert_zero, u64 ev_id):
+	gate(gateType t, int ll, u64 uu, u64 vv, const F &cc, bool is_assert_zero, u64 ev_id = -1):
 	    ty(t), l(ll), u(uu), v(vv), lv(0), c(cc), is_assert(is_assert_zero), eval_id(ev_id) {
 	}
 };
