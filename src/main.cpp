@@ -283,8 +283,6 @@ int main(int argc, char **argv) {
     fclose(stdin);
 
 	c.subsetInit();
-	cout << c.size << endl;
-	cout << c.circuit.size() << endl;
     prover p(c);
     verifier v(&p, c);
     v.verify();
