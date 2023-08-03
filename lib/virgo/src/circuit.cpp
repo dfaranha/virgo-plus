@@ -1,5 +1,5 @@
 #include "circuit.h"
-#include "../lib/virgo/src/fieldElement.hpp"
+#include "fieldElement.hpp"
 #include <algorithm>
 #include "immintrin.h"
 

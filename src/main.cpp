@@ -1,7 +1,7 @@
 #undef NDEBUG
 #include "assert.h"
-#include "verifier.h"
-#include "inputCircuit.hpp"
+#include "../lib/virgo/include/verifier.h"
+#include "../lib/virgo/include/inputCircuit.hpp"
 
 using namespace std;
 using namespace virgo;
@@ -283,6 +283,8 @@ int main(int argc, char **argv) {
     fclose(stdin);
 
 	c.subsetInit();
+	cout << c.size << endl;
+	cout << c.circuit.size() << endl;
     prover p(c);
     verifier v(&p, c);
     v.verify();
