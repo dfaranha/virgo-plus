@@ -5,6 +5,14 @@
 #include "utils.hpp"
 #include "config_pc.hpp"
 
+int mylog(long long x) {
+	for (int i = 0; i < 64; ++i) {
+		if ((1LL << i) == x)
+			return i;
+	}
+	assert(false);
+}
+
 void initHalfTable(vector<F> &beta_f, vector<F> &beta_s, const vector<F>::const_iterator &r, const F &init, u64 first_half, u64 second_half) {
     beta_f.at(0) = init;
     beta_s.at(0) = F_ONE;

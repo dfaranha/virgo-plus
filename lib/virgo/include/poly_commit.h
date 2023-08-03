@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include "RS_polynomial.h"
-#include "utility.h"
 #include <vector>
 #include "fri.h"
 #include "vpd_prover.h"

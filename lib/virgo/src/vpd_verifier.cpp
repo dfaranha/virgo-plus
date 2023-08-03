@@ -1,11 +1,22 @@
-#include "RS_polynomial.h"
-#include "utility.h"
-#include "poly_commit.h"
-#include "fft_circuit_GKR.h"
 #include <iostream>
 #include <cstdio>
 
+#include "utils.hpp"
+#include "RS_polynomial.h"
+#include "poly_commit.h"
+#include "fft_circuit_GKR.h"
+
+
 namespace virgo {
+	static int mylog(long long x) {
+		for (int i = 0; i < 64; ++i) {
+			if ((1LL << i) == x)
+				return i;
+		}
+		assert(false);
+		return 0;
+	}
+
     inline bool verify_merkle(__hhash_digest h, std::vector<__hhash_digest> merkle_path, int len, int pow,
                               std::vector<std::pair<fieldElement, fieldElement> > value) {
         __hhash_digest cur_hhash = merkle_path[len - 1];
@@ -149,10 +160,10 @@ namespace virgo {
 
                     proof_size += new_size; //both h and p
                     t0 = std::chrono::high_resolution_clock::now();
-                    if (!verify_merkle(merkle_tree_l, alpha_l.second, alpha_l.second.size(), min(s0_pow, s1_pow),
+                    if (!verify_merkle(merkle_tree_l, alpha_l.second, alpha_l.second.size(), MIN(s0_pow, s1_pow),
                                        alpha_l.first))
                         return false;
-                    if (!verify_merkle(merkle_tree_h, alpha_h.second, alpha_h.second.size(), min(s0_pow, s1_pow),
+                    if (!verify_merkle(merkle_tree_h, alpha_h.second, alpha_h.second.size(), MIN(s0_pow, s1_pow),
                                        alpha_h.first))
                         return false;
                     t1 = std::chrono::high_resolution_clock::now();

@@ -1,4 +1,5 @@
 #include "poly_commit.h"
+#include "utils.hpp"
 
 namespace virgo {
 	fieldElement *poly_commit::all_pri_msk_arr;

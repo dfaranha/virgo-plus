@@ -7,6 +7,12 @@
 
 #include "config_pc.hpp"
 
+#define MIN(x, y)	((x) > (y) ? (y) : (x))
+
+#define MAX(x, y)	((x) > (y) ? (x) : (y))
+
+int mylog(long long x);
+
 void initBetaTable(vector<F> &beta_g, u8 gLength, const vector<F>::const_iterator &r, const F &init);
 
 void

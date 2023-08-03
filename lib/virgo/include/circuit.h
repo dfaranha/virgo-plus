@@ -3,10 +3,17 @@
 #include <vector>
 #include <unordered_map>
 #include <utility>
-#include <virgo/polyCommit.hpp>
 #include <unordered_set>
 #include "inputCircuit.hpp"
 #include "config_pc.hpp"
+
+#include "poly_commit.h"
+#include "timer.hpp"
+#include "fieldElement.hpp"
+#include "polynomial.h"
+#include "RS_polynomial.h"
+#include "constants.h"
+#include "my_hhash.h"
 
 class gate {
 public:
@@ -20,7 +27,6 @@ public:
 	    ty(t), l(ll), u(uu), v(vv), lv(0), c(cc), is_assert(is_assert_zero) {
 	}
 };
-
 
 class layer {
 public:
