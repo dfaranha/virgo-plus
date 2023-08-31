@@ -150,10 +150,16 @@ void DAG_to_layered(layeredCircuit &c, vector<DAG_gate *> in_circuit_dag) {
                 u = id_in_lyr[in0];
                 cst = F(in1);
                 c.circuit[lg].gates[gid] = gate(ty, -1, u, 0, cst, is_assert);
+                break;
             case Input:
                 u = in0;
                 c.circuit[lg].gates[gid] = gate(ty, -1, u, 0, F_ZERO, is_assert);
+                break;
+            default:
+                printf("Unhandled gate\n");
         }
+        // std::cout << "\n";
+
     }
 
     // repeat the layer except the input for ${repeat} times
@@ -182,13 +188,15 @@ void DAG_to_layered(layeredCircuit &c, vector<DAG_gate *> in_circuit_dag) {
 }
 
 regex add_gate("P V[0-9]+ = V[0-9]+ \\+ V[0-9]+ E");
+regex addc_gate("P V[0-9]+ = V[0-9]+ \\+ C[0-9]+ E");
 regex mult_gate("P V[0-9]+ = V[0-9]+ \\* V[0-9]+ E");
+regex mulc_gate("P V[0-9]+ = V[0-9]+ \\* C[0-9]+ E");
 regex input_gate("P V[0-9]+ = I[0-9]+ E");
 regex output_gate("P O[0-9]+ = V[0-9]+ E");
 regex xor_gate("P V[0-9]+ = V[0-9]+ XOR V[0-9]+ E");
 regex minus_gate("P V[0-9]+ = V[0-9]+ minus V[0-9]+ E");
 regex naab_gate("P V[0-9]+ = V[0-9]+ NAAB V[0-9]+ E");
-regex not_gate("P V[0-9]+ = V[0-9]+ NOT V[0-9]+ E");
+regex not_gate("P V[0-9]+ = V[0-9]+ NOT E");
 
 smatch base_match;
 
@@ -217,19 +225,27 @@ DAG_gate *buildInput(vector<DAG_gate *> &in_circuit_dag, u64 tgt, u64 src0) {
     return g;
 }
 
+
 void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
     string source_line;
     i64 tgt, src0, src1;
+    u64 src0u;
     while (getline(circuit_in, source_line)) {
         if (std::regex_match(source_line, base_match, add_gate)) {
             sscanf(source_line.c_str(), "P V%lld = V%lld + V%lld E", &tgt, &src0, &src1);
             buildGate(in_circuit_dag, Add, tgt, src0, src1, false);
+        } else if (std::regex_match(source_line, base_match, addc_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld + C%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Addc, tgt, src0, src1, true);
         } else if (std::regex_match(source_line, base_match, mult_gate)) {
             sscanf(source_line.c_str(), "P V%lld = V%lld * V%lld E", &tgt, &src0, &src1);
             buildGate(in_circuit_dag, Mul, tgt, src0, src1, false);
+        } else if (std::regex_match(source_line, base_match, mulc_gate)) {
+            sscanf(source_line.c_str(), "P V%lld = V%lld * C%lld E", &tgt, &src0, &src1);
+            buildGate(in_circuit_dag, Mulc, tgt, src0, src1, true);
         } else if (std::regex_match(source_line, base_match, input_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = I%lld E", &tgt, &src0);
-            buildInput(in_circuit_dag, tgt, src0);
+            sscanf(source_line.c_str(), "P V%lld = I%llu E", &tgt, &src0u);
+            buildInput(in_circuit_dag, tgt, src0u);
         } else if (std::regex_match(source_line, base_match, output_gate)) {
             sscanf(source_line.c_str(), "P O%lld = V%lld E", &tgt, &src0);
         } else if (std::regex_match(source_line, base_match, xor_gate)) {
@@ -242,13 +258,15 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
             sscanf(source_line.c_str(), "P V%lld = V%lld minus V%lld E", &tgt, &src0, &src1);
             buildGate(in_circuit_dag, Sub, tgt, src0, src1, false);
         } else if (std::regex_match(source_line, base_match, not_gate)) {
-            sscanf(source_line.c_str(), "P V%lld = V%lld NOT V%lld E", &tgt, &src0, &src1);
+            sscanf(source_line.c_str(), "P V%lld = V%lld NOT E", &tgt, &src0, &src1);
             buildGate(in_circuit_dag, Not, tgt, src0, 0, true);
         } else {
+            std::cout << "Failed to parse: " << source_line << "\n";
             assert(false);
         }
     }
 }
+
 
 #define REL 1
 #define PRIME 0xfffffa000000001LL
@@ -268,17 +286,28 @@ F* public_array_prepare_generic(F *public_array, int log_length)
 	return q_coef_arr;
 }
 
+void debug_print_circuit(layeredCircuit &c){
+  for (size_t i = 0; i < c.circuit.size(); i++){
+    std::cout << "Layer " << i << ":\n";
+    for (size_t j = 0; j < c.circuit[i].gates.size(); j++){
+      printf("Gate %lu: ty = %lu, c = %lu, u = %lu, v = %lu, l = %lu, id = %lu\n",
+        j, c.circuit[i].gates[j].ty, c.circuit[i].gates[j].c.elem, c.circuit[i].gates[j].u, c.circuit[i].gates[j].v,
+        c.circuit[i].gates[j].l, c.circuit[i].gates[j].eval_id
+      );
+    }
+  }
+}
+
 int main(int argc, char **argv) {
 	layeredCircuit c;
 	vector<DAG_gate *> in_circuit_dag;
+	F::init(PRIME, ROOT);
 
     ifstream circuit_in(argv[REL]);
     parse(in_circuit_dag, circuit_in);
     DAG_to_layered(c, in_circuit_dag);
-
 	// Configure prime field.
-	F::init(PRIME, ROOT);
-	test_field_arithmetic();
+	// test_field_arithmetic();
 
     fclose(stdin);
 
@@ -286,6 +315,7 @@ int main(int argc, char **argv) {
     prover p(c);
     verifier v(&p, c);
     v.verify();
+    debug_print_circuit(c);
 
     fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
 
