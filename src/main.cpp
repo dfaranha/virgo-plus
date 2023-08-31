@@ -295,6 +295,8 @@ int main(int argc, char **argv) {
 
 	verifier.p = &prover;
 
+	fri::delete_self();
+
 	F *all_sum = new F[slice_number + 1];
 	int log_length = 8;
 	auto all_pri_mask = vector<F>(1, F_ZERO);
