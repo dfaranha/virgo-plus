@@ -95,7 +95,7 @@ namespace virgo {
 		static unsigned int len;
         static unsigned int __max_order;
 
-        unsigned long long elem;
+        unsigned long long elem[2];
 
         static double self_speed_test_mult(int repeat);
         static double self_speed_test_add(int repeat);
@@ -106,29 +106,6 @@ namespace virgo {
         static unsigned long long randomNumber();
 
         friend fieldElementPacked;
-    };
-
-    class fieldElementPacked {
-    public:
-        __m256i elem;
-
-        fieldElementPacked();
-        fieldElementPacked(const fieldElement &x0, const fieldElement &x1, const fieldElement &x2, const fieldElement &x3);
-
-        static void init(unsigned long long prime);
-        fieldElementPacked operator + (const fieldElementPacked &b) const;
-        fieldElementPacked operator * (const fieldElementPacked &b) const;
-        fieldElementPacked operator - (const fieldElementPacked &b) const;
-        __mmask8 operator == (const fieldElementPacked &b) const;
-        __mmask8 operator != (const fieldElementPacked &b) const;
-        void getFieldElement(fieldElement *dst) const;
-
-        static unsigned long long mod;
-        static __m256i packed_mod, packed_mod_minus_one;
-
-        static __m256i packed_mymult(const __m256i x, const __m256i y);
-        static __m256i packed_myMod(const __m256i x);
-
     };
 }
 

@@ -10,16 +10,12 @@ namespace virgo {
         __dst[0] = new fieldElement[order];//(fieldElement*)malloc(order * sizeof(fieldElement));
         __dst[1] = new fieldElement[order];//(fieldElement*)malloc(order * sizeof(fieldElement));
         __dst[2] = new fieldElement[order];
-        __avx_dst[0] = new fieldElementPacked[order / packed_size];
-        __avx_dst[1] = new fieldElementPacked[order / packed_size];
         twiddle_factor = new fieldElement[order];
     }
 
     void delete_scratch_pad() {
         delete[] __dst[0];
         delete[] __dst[1];
-        delete[] __avx_dst[0];
-        delete[] __avx_dst[1];
         delete[] twiddle_factor;
     }
 
@@ -45,7 +41,7 @@ namespace virgo {
             }
         }
         assert(lg_order != -1 && lg_coef != -1);
-        assert(rot_mul[lg_order].elem == 1);
+        assert(rot_mul[lg_order] == 1);
         //we can merge both cases, but I just don't want to do so since it's easy to make mistake
         if (lg_coef > lg_order) {
             assert(false);

@@ -31,7 +31,7 @@ void test_field_arithmetic() {
 		c = a.inv();
 		d = a * c;
 		assert(d == 1);
-
+		
 		c = -1;
 		assert(c.isNegative());
 		c = c + 1;
@@ -269,11 +269,8 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 
 
 #define REL 1
-#define PRIME 0xfffffa000000001LL
-#define ROOT  0x7b1b94e93e3ec91
-
-#define PRIME2 0x2a74200000001LL
-#define ROOT2  186427948752465
+#define PRIME 0x1ffffc00000001LL
+#define ROOT  0x121407b22992c6LL
 
 F* public_array_prepare_generic(F *public_array, int log_length)
 {
@@ -307,7 +304,7 @@ int main(int argc, char **argv) {
     parse(in_circuit_dag, circuit_in);
     DAG_to_layered(c, in_circuit_dag);
 	// Configure prime field.
-	// test_field_arithmetic();
+	test_field_arithmetic();
 
     fclose(stdin);
 
