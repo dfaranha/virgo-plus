@@ -315,7 +315,7 @@ int main(int argc, char **argv) {
     prover p(c);
     verifier v(&p, c);
     v.verify();
-    debug_print_circuit(c);
+    //debug_print_circuit(c);
 
     fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
 
