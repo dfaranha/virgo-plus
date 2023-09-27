@@ -20,9 +20,11 @@ namespace virgo {
 	bool fieldElement::isCounting;
 	bool fieldElement::isSumchecking;
 
-	 fieldElement::fieldElement() {
+	fieldElement::fieldElement() {
 		elem[0] = elem[1] = 0;
-	} fieldElement::fieldElement(const fieldElement & b) {
+	}
+	
+	fieldElement::fieldElement(const fieldElement & b) {
 		elem[0] = b.elem[0];
 		elem[1] = b.elem[1];
 	}
@@ -130,9 +132,13 @@ namespace virgo {
 
 	bool fieldElement::operator!=(const fieldElement & other) const {
 		return elem[0] != other.elem[0] || elem[1] != other.elem[1];
-	} bool fieldElement::operator==(const fieldElement & other) const {
+	}
+	
+	bool fieldElement::operator==(const fieldElement & other) const {
 		return !(*this != other);
-	} fieldElement & fieldElement::operator=(const fieldElement & other) {
+	}
+	
+	fieldElement & fieldElement::operator=(const fieldElement & other) {
 		elem[0] = other.elem[0];
 		elem[1] = other.elem[1];
 		return *this;
@@ -155,27 +161,23 @@ namespace virgo {
 
 	fieldElement::operator  bool () const {
 		return elem[0] || elem[1];
-	} bool fieldElement::isNegative() const {
-		return (elem[0] > (mod >> 1)) && (elem[1] == 0);
-	} unsigned char fieldElement::getBitWidth() const {
-		assert(elem[1] == 0);
-		auto dat = elem[0];
-		unsigned char res = 0;
-		for (int i = 32; i && dat; i >>= 1) {
-			if (dat >> i) {
-				res += i;
-				dat >>= i;
-			}
-		} return res + 1;
 	}
-
+	
+	bool fieldElement::isNegative() const {
+		return (elem[0] > (mod >> 1)) && (elem[1] == 0);
+	}
+	
 	unsigned char fieldElement::getBit(unsigned int i) const {
 		assert(elem[1] == 0);
 		return (elem[0] >> i) & 1;
-	} bool fieldElement::operator<(const fieldElement & other) const {
+	}
+	
+	bool fieldElement::operator<(const fieldElement & other) const {
 		assert(elem[1] == 0);
 		return elem[0] < other.elem[0];
-	} bool fieldElement::isZero() {
+	}
+	
+	bool fieldElement::isZero() {
 		return !elem[0] && !elem[1];
 	}
 
@@ -183,9 +185,13 @@ namespace virgo {
 		assert(elem[1] == 0);
 		fieldElement res = -*this;
 		 return res.elem[0] < this->elem[0] ? res : elem[0];
-	} fieldElement fieldElement::sqr() const {
+	}
+	
+	fieldElement fieldElement::sqr() const {
 		return (*this) * (*this);
-	} fieldElement fieldElement::inv() const {
+	}
+	
+	fieldElement fieldElement::inv() const {
 		fieldElement ret;
 		auto t0 = mymult(elem[0], elem[0]);
 		auto t1 = mymult(elem[1], elem[1]);
@@ -222,7 +228,9 @@ namespace virgo {
 
 	void fieldElement::print(FILE *fileno) const {
 		fprintf(fileno, "(%llu, %llu)\n", elem[0], elem[1]);
-	} fieldElement fieldElement::maxWithZero(const fieldElement & a,
+	}
+	
+	fieldElement fieldElement::maxWithZero(const fieldElement & a,
 			const fieldElement & b) {
 		if (a.isNegative() && b.isNegative())
 			return fieldElement::zero();
@@ -312,7 +320,9 @@ namespace virgo {
 		char *s = new char[50];
 		 sprintf(s, "(%llu, %llu)", this->elem[0], this->elem[1]);
 		 return s;
-	} ostream & operator<<(ostream & out, const fieldElement & c) {
+	}
+	
+	ostream & operator<<(ostream & out, const fieldElement & c) {
 		out << '(' << c.elem[0] << ',' << c.elem[1] << ')';
 		return out;
 	}
