@@ -1,6 +1,8 @@
 #include "RS_polynomial.h"
 #include <iostream>
 
+using namespace std;
+
 namespace virgo {
     fieldElement *__dst[3];
     fieldElementPacked *__avx_dst[2];
@@ -45,7 +47,7 @@ namespace virgo {
             }
         }
         assert(lg_order != -1 && lg_coef != -1);
-        assert(rot_mul[lg_order].elem == 1);
+        assert(rot_mul[lg_order] == 1);
         //we can merge both cases, but I just don't want to do so since it's easy to make mistake
         if (lg_coef > lg_order) {
             assert(false);
@@ -94,7 +96,6 @@ namespace virgo {
             fprintf(stderr, "Will construct a polynomial with less order than required.");
             coef_len = order;
         }
-
         //assume coef_len <= order
 
         //subsample evalutions
@@ -141,7 +142,7 @@ namespace virgo {
         if (need_free)
             free(sub_eval);
 
-        fieldElement inv_n = fieldElement::fastPow(fieldElement(order), fieldElement::mod - 2);
+        fieldElement inv_n = fieldElement(order).inv();
         assert(inv_n * fieldElement(order) == fieldElement(1));
 
         for (int i = 0; i < coef_len; ++i) {
