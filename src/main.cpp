@@ -46,7 +46,6 @@ void test_field_arithmetic() {
 			for (int j = 1; j < i; j++) {
 				c = c.sqr();
 			}
-			cout << fieldElement::maxOrder() << endl;
 			assert(c == -1);
 		}
 	}
@@ -272,8 +271,8 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 #define PRIME 0x7ffff6000000001
 #define ROOT  16792131627006059
 
-#define PRIME 288225016032526337
-#define ROOT  40561959684870638
+//#define PRIME 288225016032526337
+//#define ROOT  40561959684870638
 
 F* public_array_prepare_generic(F *public_array, int log_length)
 {
