@@ -327,21 +327,9 @@ namespace virgo {
 		uint64_t q1 = ((__uint128_t)q*mod)>>len;
 		q0 = (lo - q0);
 		q1 = (hi - q1) - (lo < q0);
-		return (q0 - q1*mod) & ((1L << len) - 1);
-		/*
-        unsigned long long hi;
-        asm(
-        "mov %[x_read], %%rdx;\n"
-        "mulx %[y_read], %%r9, %%r10;"
-        "shld $0x3, %%r9, %%r10;\n"
-        "and %[mod_read], %%r9;\n"
-        "add %%r10, %%r9;\n"
-        "mov %%r9, %[hi_write]"
-        : [hi_write] "=r"(hi)
-        : [x_read] "r"(x), [y_read]"r"(y), [mod_read]"r"(mod)
-        : "rdx", "r9", "r10"
-        );
-        return hi;*/
+		q0 = (q0 - q1*mod) & ((1L << len) - 1);
+		while (q0 >= mod) q0 -= mod;
+		return q0;
     }
 
     unsigned long long fieldElement::randomNumber() {
