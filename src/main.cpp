@@ -226,7 +226,6 @@ DAG_gate *buildInput(vector<DAG_gate *> &in_circuit_dag, u64 tgt, u64 src0) {
     return g;
 }
 
-
 void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
     string source_line;
     i64 tgt, src0, src1;
@@ -273,6 +272,9 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 #define PRIME 0x7ffff6000000001
 #define ROOT  16792131627006059
 
+#define PRIME 288225016032526337
+#define ROOT  40561959684870638
+
 F* public_array_prepare_generic(F *public_array, int log_length)
 {
 	F *q_coef_arr = new F[1 << log_length];
@@ -289,7 +291,7 @@ void debug_print_circuit(layeredCircuit &c){
     std::cout << "Layer " << i << ":\n";
     for (size_t j = 0; j < c.circuit[i].gates.size(); j++){
       printf("Gate %lu: ty = %lu, c = %lu, u = %lu, v = %lu, l = %lu, id = %lu\n",
-        j, c.circuit[i].gates[j].ty, c.circuit[i].gates[j].c.elem, c.circuit[i].gates[j].u, c.circuit[i].gates[j].v,
+        j, c.circuit[i].gates[j].ty, c.circuit[i].gates[j].c, c.circuit[i].gates[j].u, c.circuit[i].gates[j].v,
         c.circuit[i].gates[j].l, c.circuit[i].gates[j].eval_id
       );
     }
