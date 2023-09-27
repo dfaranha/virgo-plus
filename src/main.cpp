@@ -299,8 +299,9 @@ void debug_print_circuit(layeredCircuit &c){
   for (size_t i = 0; i < c.circuit.size(); i++){
     std::cout << "Layer " << i << ":\n";
     for (size_t j = 0; j < c.circuit[i].gates.size(); j++){
-      printf("Gate %lu: ty = %lu, c = %lu, u = %lu, v = %lu, l = %lu, id = %lu\n",
-        j, c.circuit[i].gates[j].ty, c.circuit[i].gates[j].c.elem, c.circuit[i].gates[j].u, c.circuit[i].gates[j].v,
+      printf("Gate %lu: ty = %lu, c0 = %lu, c1 = %lu, u = %lu, v = %lu, l = %lu, id = %lu\n",
+        j, c.circuit[i].gates[j].ty, c.circuit[i].gates[j].c.elem[0],  c.circuit[i].gates[j].c.elem[1],
+		c.circuit[i].gates[j].u, c.circuit[i].gates[j].v,
         c.circuit[i].gates[j].l, c.circuit[i].gates[j].eval_id
       );
     }
