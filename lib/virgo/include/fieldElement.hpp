@@ -87,11 +87,6 @@ namespace virgo {
         static int multCounter, addCounter;
         static bool isCounting;
         static bool isSumchecking;
-        static unsigned long long mod;
-		static unsigned long long rou;
-		static unsigned long long rcp;
-		static unsigned int len;
-        static unsigned int __max_order;
 
         unsigned long long elem[2];
 
@@ -102,6 +97,11 @@ namespace virgo {
         static unsigned long long myMod(unsigned long long x);
         static unsigned long long mymult(const unsigned long long x, const unsigned long long y);
         static unsigned long long randomNumber();
+        static unsigned long long mod;
+        static unsigned long long rou;
+        static unsigned long long rcp;
+        static unsigned int len;
+        static unsigned int __max_order;
 
         friend fieldElementPacked;
     };

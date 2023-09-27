@@ -137,7 +137,7 @@ namespace virgo {
         if (need_free)
             free(sub_eval);
 
-        fieldElement inv_n = fieldElement::fastPow(fieldElement(order), fieldElement::mod - 2);
+        fieldElement inv_n = fieldElement(order).inv();
         assert(inv_n * fieldElement(order) == fieldElement(1));
 
         for (int i = 0; i < coef_len; ++i) {
