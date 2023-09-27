@@ -52,8 +52,6 @@ namespace virgo {
 
         [[nodiscard]] bool isNegative() const;
 
-        [[nodiscard]] unsigned char getBitWidth() const;
-
         [[nodiscard]] unsigned char getBit(unsigned int i) const;
 
         [[nodiscard]] __int128_t toint128() const;

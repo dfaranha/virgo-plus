@@ -59,7 +59,6 @@ namespace virgo {
             assert(L_group[(1 << log_current_witness_size_per_slice) - 1] * root_of_unity == fieldElement(1));
         }
         //commit the witness
-        //assert(sizeof(fieldElement) == 16);
         witness_rs_codeword_interleaved[oracle_indicator] = new fieldElement[1 << (bit_len + rs_code_rate)];
 
         const int log_leaf_size = log_slice_number + 1;

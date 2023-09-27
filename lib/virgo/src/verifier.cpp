@@ -202,6 +202,10 @@ bool verifier::verifyPhase1(int layer_id, F &previousSum) {
         auto poly = p->sumcheckUpdatePhase1(previousRandom);
         verify_timer.start();
         verify_slow_timer.start();
+		cout << poly.eval(0) << endl;
+		cout << poly.eval(1) << endl;
+		cout << poly.eval(0) + poly.eval(1) << endl;
+		cout << previousSum << endl;
         if (poly.eval(0) + poly.eval(1) != previousSum)
         {
             fprintf(stderr, "Verification fail, phase1, circuit %d, current bit %d\n", layer_id, j);

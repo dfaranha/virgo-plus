@@ -19,6 +19,15 @@ void test_field_arithmetic() {
 		c = fieldElement::one();
 		assert(c == 1);
 
+		c = a + b;
+		d = b + a;
+		assert(c == d);
+
+		c = fieldElement::random();
+		d = (a + b) + c;
+		e = a + (b + c);
+		assert(d == e);
+
 		c = a * b;
 		d = b * a;
 		assert(c == d);
@@ -271,6 +280,9 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 #define REL 1
 #define PRIME 0x1ffffc00000001LL
 #define ROOT  0x121407b22992c6LL
+
+//#define PRIME 0x1fffffffffffffff
+//#define ROOT  1033321771269002680L
 
 F* public_array_prepare_generic(F *public_array, int log_length)
 {

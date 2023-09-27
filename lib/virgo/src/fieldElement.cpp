@@ -245,7 +245,6 @@ namespace virgo {
 
 	fieldElement fieldElement::getRootOfUnity(int log_order) {
 		fieldElement root;
-		//general root of unity, have log_order 2^35
 		root.elem[0] = 0;
 		root.elem[1] = rou;
 
