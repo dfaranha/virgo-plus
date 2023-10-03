@@ -351,11 +351,10 @@ namespace virgo {
 		uint64_t q1 = ((__uint128_t) q * mod) >> len;
 		q0 = (lo - q0);
 		q1 = (hi - q1) - (lo < q0);
-		q0 = (q0 - q1 * mod) & ((1L << len) - 1);
-		while (q0 > mod)
-			q0 -= mod;
+		q0 = (q0 - q1*mod) & ((1L << len) - 1);
+		while (q0 >= mod) q0 -= mod;
 		return q0;
-	}
+    }
 
 	unsigned long long fieldElement::randomNumber() {
 		unsigned long long ret =::random() % 10;

@@ -234,7 +234,6 @@ DAG_gate *buildInput(vector<DAG_gate *> &in_circuit_dag, u64 tgt, u64 src0) {
     return g;
 }
 
-
 void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
     string source_line;
     i64 tgt, src0, src1;
@@ -278,11 +277,8 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 
 
 #define REL 1
-#define PRIME 0x1ffffc00000001LL
-#define ROOT  0x121407b22992c6LL
-
-//#define PRIME 0x1fffffffffffffff
-//#define ROOT  1033321771269002680L
+#define PRIME 0x1ffffc00000001L
+#define ROOT  0x14efcb6861c580L
 
 F* public_array_prepare_generic(F *public_array, int log_length)
 {
@@ -351,7 +347,7 @@ int main(int argc, char **argv) {
 	auto merkle_root_l = prover.commit_private_array(private_array.data(), log_length, all_pri_mask);
 	auto inner_product_sum = prover.inner_prod(private_array.data(), public_array.data(), private_array.size());
 	auto merkle_root_h = prover.commit_public_array(all_pub_mask, public_array.data(), log_length, inner_product_sum, all_sum);
-
+	
 	/* Verifier. */
 	int proof_size;
 	double v_time, p_time;

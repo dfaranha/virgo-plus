@@ -1,6 +1,8 @@
 #include "RS_polynomial.h"
 #include <iostream>
 
+using namespace std;
+
 namespace virgo {
     fieldElement *__dst[3];
     fieldElementPacked *__avx_dst[2];
@@ -90,7 +92,6 @@ namespace virgo {
             fprintf(stderr, "Will construct a polynomial with less order than required.");
             coef_len = order;
         }
-
         //assume coef_len <= order
 
         //subsample evalutions

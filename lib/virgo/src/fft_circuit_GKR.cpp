@@ -22,6 +22,8 @@ namespace virgo {
         float v_time = 0;
 
         void build_circuit(int lg_size, fieldElement *r) {
+			C.circuit_val.clear();
+			C.size.clear();
             C.circuit_val.push_back(new fieldElement[1]);
             C.circuit_val[0][0] = fieldElement(1); //input layer
             C.size.push_back(1);
