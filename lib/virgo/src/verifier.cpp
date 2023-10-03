@@ -74,10 +74,12 @@ void verifier::predicatePhase1(int layer_id) {
                 break;
             case gateType::Mulc:
                 coeff_l[(u64) gate.ty] += beta_g[g] * beta_u[gate.u] * gate.c;
+				break;
         }
     }
 
     fill(coeff_r[(u64) gateType::Add].begin(), coeff_r[(u64) gateType::Add].end(), F_ZERO);
+	fill(coeff_r[(u64) gateType::Addc].begin(), coeff_r[(u64) gateType::Addc].end(), F_ZERO);
     fill(coeff_r[(u64) gateType::Sub].begin(), coeff_r[(u64) gateType::Sub].end(), F_ZERO);
     fill(coeff_r[(u64) gateType::AntiSub].begin(), coeff_r[(u64) gateType::AntiSub].end(), F_ZERO);
     fill(coeff_r[(u64) gateType::Mul].begin(), coeff_r[(u64) gateType::Mul].end(), F_ZERO);
@@ -114,7 +116,7 @@ F verifier::getFinalValue(int layer_id, const F &claim_u,
     auto res = coeff_l[(u64) gateType::Not] * (F_ONE - claim_u)
                + coeff_l[(u64) gateType::Copy] * claim_u
                + coeff_l[(u64) gateType::Addc] * claim_u + bias
-               + coeff_l[(u64) gateType::Mulc] * claim_u;
+               + coeff_l[(u64) gateType::Mulc] * F_ONE;
     for (int j = 0; j < layer_id; ++j) {
         auto tmp = coeff_r[(u64) gateType::Add][j] * (claim_u + claim_v[j])
                    + coeff_r[(u64) gateType::Sub][j] * (claim_u - claim_v[j])

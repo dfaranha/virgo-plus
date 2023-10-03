@@ -255,7 +255,8 @@ void prover::sumcheckInitPhase1(const F &assert_random)
                 //tmp_mult[u] = tmp_mult[u] + tmp;
                 break;
             case gateType::Mulc:
-                tmp_mult[u] = tmp_mult[u] + info.c * tmp;
+                tmp_add[u] = tmp_add[u] + info.c * tmp;
+                //tmp_mult[u] = tmp_mult[u] + info.c * tmp;
                 break;
             case gateType::Copy:
                 tmp_mult[u].b += tmp;
