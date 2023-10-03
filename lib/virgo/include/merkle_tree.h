@@ -7,7 +7,7 @@
 #include <wmmintrin.h>
 #include "my_hhash.h"
 
-namespace virgo {
+namespace virgo_ext {
     namespace merkle_tree {
         extern int size_after_padding;
         namespace merkle_tree_prover {

@@ -9,7 +9,7 @@
 #include "polynomial.h"
 
 using std::unique_ptr;
-using namespace virgo;
+using namespace virgo_ext;
 
 class prover
 {
@@ -37,10 +37,10 @@ public:
 	double proofSize() const;
 
 #ifdef USE_VIRGO
-	virgo::poly_commit::poly_commit_prover poly_prover;
-	virgo::__hhash_digest commit_private();
+	virgo_ext::poly_commit::poly_commit_prover poly_prover;
+	virgo_ext::__hhash_digest commit_private();
 	F inner_prod(const vector<F> &a, const vector<F> &b, u64 l);
-	virgo::__hhash_digest commit_public(vector<F> &pub, F &inner_product_sum, std::vector<F> &mask, vector<F> &all_sum);
+	virgo_ext::__hhash_digest commit_public(vector<F> &pub, F &inner_product_sum, std::vector<F> &mask, vector<F> &all_sum);
 #endif
 
 private:

@@ -14,9 +14,9 @@
 #include "RS_polynomial.h"
 #include "constants.h"
 #include "my_hhash.h"
-#define F   virgo::fieldElement
-#define F_ONE   virgo::fieldElement::one()
-#define F_ZERO  virgo::fieldElement::zero()
+#define F   virgo_ext::fieldElement
+#define F_ONE   virgo_ext::fieldElement::one()
+#define F_ZERO  virgo_ext::fieldElement::zero()
 #endif
 
 #ifdef USE_HYRAX_P224

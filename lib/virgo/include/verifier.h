@@ -5,7 +5,7 @@
 #include "config_pc.hpp"
 
 using namespace std;
-using namespace virgo;
+using namespace virgo_ext;
 
 using std::unique_ptr;
 class verifier
@@ -51,8 +51,8 @@ private:
 
 //    Polynomial commitment
 #ifdef USE_VIRGO
-	bool verifyPoly(const virgo::__hhash_digest &merkle_root_l, const F &previousSum);
-    virgo::poly_commit::poly_commit_verifier poly_ver;
+	bool verifyPoly(const virgo_ext::__hhash_digest &merkle_root_l, const F &previousSum);
+    virgo_ext::poly_commit::poly_commit_verifier poly_ver;
     double commit_vt, commit_pt;
     int commit_ps;
 #endif

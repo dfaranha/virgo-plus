@@ -3,7 +3,7 @@
 
 using namespace std;
 
-namespace virgo {
+namespace virgo_ext {
     fieldElement *__dst[3];
     fieldElementPacked *__avx_dst[2];
     fieldElement *twiddle_factor;

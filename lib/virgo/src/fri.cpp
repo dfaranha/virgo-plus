@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "poly_commit.h"
 
-namespace virgo {
+namespace virgo_ext {
 //variables
     int fri::log_current_witness_size_per_slice, fri::current_step_no, fri::witness_bit_length_per_slice;
     fri::commit_phase_data fri::cpd;

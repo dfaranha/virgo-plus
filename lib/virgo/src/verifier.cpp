@@ -2,7 +2,7 @@
 #include "utils.hpp"
 #include <bits/stdc++.h>
 
-using namespace virgo;
+using namespace virgo_ext;
 using namespace std;
 
 verifier::verifier(prover *pr, const layeredCircuit &cir) :
@@ -346,7 +346,7 @@ double verifier::verifySlowTime() const {
 #ifdef USE_VIRGO
 void verifier::public_array_prepare_generic(vector<F> &q_coef_arr, vector<F> &public_array, int log_length)
 {
-    using namespace virgo;
+    using namespace virgo_ext;
 	q_coef_arr.resize(1ULL << log_length);
 	int coef_slice_size = (1 << (log_length - log_slice_number));
 	for (int i = 0; i < (1 << log_slice_number); ++i)
@@ -360,7 +360,7 @@ void verifier::public_array_prepare_generic(vector<F> &q_coef_arr, vector<F> &pu
 }
 
 bool verifier::verifyPoly(const __hhash_digest &merkle_root_l, const F &previousSum) {
-    using namespace virgo;
+    using namespace virgo_ext;
     verify_timer.start();
     verify_slow_timer.start();
 

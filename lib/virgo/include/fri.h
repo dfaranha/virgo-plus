@@ -6,7 +6,7 @@
 #include "constants.h"
 #include <vector>
 
-namespace virgo {
+namespace virgo_ext {
     namespace fri {
         class commit_phase_data {
         public:

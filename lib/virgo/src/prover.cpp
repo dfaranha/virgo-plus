@@ -7,7 +7,7 @@ using std::endl;
 using std::max;
 using std::min;
 
-using namespace virgo;
+using namespace virgo_ext;
 
 linear_poly interpolate(const F &zero_v, const F &one_v) {
     return {one_v - zero_v, zero_v};
@@ -523,7 +523,7 @@ void prover::sumcheckLiuFinalize(const F &previousRandom, F &final_claim) {
 }
 
 #ifdef USE_VIRGO
-virgo::__hhash_digest prover::commit_private()
+virgo_ext::__hhash_digest prover::commit_private()
 {
     std::vector<F> mask(1, F_ZERO);
 
@@ -541,7 +541,7 @@ F prover::inner_prod(const vector<F> &a, const vector<F> &b, u64 l)
     return ret;
 }
 
-virgo::__hhash_digest prover::commit_public(vector<F> &pub, F &inner_product_sum, std::vector<F> &mask, vector<F> &all_sum)
+virgo_ext::__hhash_digest prover::commit_public(vector<F> &pub, F &inner_product_sum, std::vector<F> &mask, vector<F> &all_sum)
 {
     inner_product_sum = inner_prod(circuitValue[0], pub, C.circuit[0].size);
     return poly_prover.commit_public_array(mask, pub.data(), C.circuit[0].bitLength, inner_product_sum, all_sum.data());

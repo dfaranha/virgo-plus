@@ -7,7 +7,7 @@
 #include "fft_circuit_GKR.h"
 
 
-namespace virgo {
+namespace virgo_ext {
 	static int mylog(long long x) {
 		for (int i = 0; i < 64; ++i) {
 			if ((1LL << i) == x)

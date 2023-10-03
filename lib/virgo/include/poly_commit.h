@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace virgo {
+namespace virgo_ext {
     namespace poly_commit {
         extern fieldElement *all_pri_msk_arr;
         extern fieldElement *all_pub_msk_arr;

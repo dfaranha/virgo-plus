@@ -1,11 +1,11 @@
 #include "polynomial.h"
 
-namespace virgo {
+namespace virgo_ext {
     quintuple_poly::quintuple_poly() {}
 
-    quintuple_poly::quintuple_poly(const virgo::fieldElement &aa, const virgo::fieldElement &bb,
-                                   const virgo::fieldElement &cc, const virgo::fieldElement &dd,
-                                   const virgo::fieldElement &ee, const virgo::fieldElement &ff) {
+    quintuple_poly::quintuple_poly(const virgo_ext::fieldElement &aa, const virgo_ext::fieldElement &bb,
+                                   const virgo_ext::fieldElement &cc, const virgo_ext::fieldElement &dd,
+                                   const virgo_ext::fieldElement &ee, const virgo_ext::fieldElement &ff) {
         a = aa;
         b = bb;
         c = cc;
@@ -18,15 +18,15 @@ namespace virgo {
         return quintuple_poly(a + x.a, b + x.b, c + x.c, d + x.d, e + x.e, f + x.f);
     }
 
-    virgo::fieldElement quintuple_poly::eval(const virgo::fieldElement &x) const {
+    virgo_ext::fieldElement quintuple_poly::eval(const virgo_ext::fieldElement &x) const {
         return (((((a * x) + b) * x + c) * x + d) * x + e) * x + f;
     }
 
     quadruple_poly::quadruple_poly() {}
 
-    quadruple_poly::quadruple_poly(const virgo::fieldElement &aa, const virgo::fieldElement &bb,
-                                   const virgo::fieldElement &cc, const virgo::fieldElement &dd,
-                                   const virgo::fieldElement &ee) {
+    quadruple_poly::quadruple_poly(const virgo_ext::fieldElement &aa, const virgo_ext::fieldElement &bb,
+                                   const virgo_ext::fieldElement &cc, const virgo_ext::fieldElement &dd,
+                                   const virgo_ext::fieldElement &ee) {
         a = aa;
         b = bb;
         c = cc;
@@ -38,14 +38,14 @@ namespace virgo {
         return quadruple_poly(a + x.a, b + x.b, c + x.c, d + x.d, e + x.e);
     }
 
-    virgo::fieldElement quadruple_poly::eval(const virgo::fieldElement &x) const {
+    virgo_ext::fieldElement quadruple_poly::eval(const virgo_ext::fieldElement &x) const {
         return ((((a * x) + b) * x + c) * x + d) * x + e;
     }
 
     cubic_poly::cubic_poly() {}
 
-    cubic_poly::cubic_poly(const virgo::fieldElement &aa, const virgo::fieldElement &bb, const virgo::fieldElement &cc,
-                           const virgo::fieldElement &dd) {
+    cubic_poly::cubic_poly(const virgo_ext::fieldElement &aa, const virgo_ext::fieldElement &bb, const virgo_ext::fieldElement &cc,
+                           const virgo_ext::fieldElement &dd) {
         a = aa;
         b = bb;
         c = cc;
@@ -56,15 +56,15 @@ namespace virgo {
         return cubic_poly(a + x.a, b + x.b, c + x.c, d + x.d);
     }
 
-    virgo::fieldElement cubic_poly::eval(const virgo::fieldElement &x) const {
+    virgo_ext::fieldElement cubic_poly::eval(const virgo_ext::fieldElement &x) const {
         return (((a * x) + b) * x + c) * x + d;
     }
 
 
     quadratic_poly::quadratic_poly() {}
 
-    quadratic_poly::quadratic_poly(const virgo::fieldElement &aa, const virgo::fieldElement &bb,
-                                   const virgo::fieldElement &cc) {
+    quadratic_poly::quadratic_poly(const virgo_ext::fieldElement &aa, const virgo_ext::fieldElement &bb,
+                                   const virgo_ext::fieldElement &cc) {
         a = aa;
         b = bb;
         c = cc;
@@ -82,11 +82,11 @@ namespace virgo {
         return cubic_poly(a * x.a, a * x.b + b * x.a, b * x.b + c * x.a, c * x.b);
     }
 
-    quadratic_poly quadratic_poly::operator*(const virgo::fieldElement &x) const {
+    quadratic_poly quadratic_poly::operator*(const virgo_ext::fieldElement &x) const {
         return quadratic_poly(a * x, b * x, c * x);
     }
 
-    virgo::fieldElement quadratic_poly::eval(const virgo::fieldElement &x) const {
+    virgo_ext::fieldElement quadratic_poly::eval(const virgo_ext::fieldElement &x) const {
         return ((a * x) + b) * x + c;
     }
 
@@ -96,12 +96,12 @@ namespace virgo {
         b = fieldElement::zero();
     }
 
-    linear_poly::linear_poly(const virgo::fieldElement &aa, const virgo::fieldElement &bb) {
+    linear_poly::linear_poly(const virgo_ext::fieldElement &aa, const virgo_ext::fieldElement &bb) {
         a = aa;
         b = bb;
     }
 
-    linear_poly::linear_poly(const virgo::fieldElement &x) {
+    linear_poly::linear_poly(const virgo_ext::fieldElement &x) {
         a = fieldElement::zero();
         b = x;
     }
@@ -114,11 +114,11 @@ namespace virgo {
         return quadratic_poly(a * x.a, a * x.b + b * x.a, b * x.b);
     }
 
-    linear_poly linear_poly::operator*(const virgo::fieldElement &x) const {
+    linear_poly linear_poly::operator*(const virgo_ext::fieldElement &x) const {
         return linear_poly(a * x, b * x);
     }
 
-    virgo::fieldElement linear_poly::eval(const virgo::fieldElement &x) const {
+    virgo_ext::fieldElement linear_poly::eval(const virgo_ext::fieldElement &x) const {
         return a * x + b;
     }
 }

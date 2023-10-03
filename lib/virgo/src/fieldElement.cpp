@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace virgo {
+namespace virgo_ext {
 	unsigned long long fieldElement::mod = 0;
 	unsigned long long fieldElement::rou = 0;
 	unsigned long long fieldElement::rcp = 0;

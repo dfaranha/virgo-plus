@@ -12,7 +12,7 @@ extern "C"{
 #include "../lib/libXKCP.a.headers/SimpleFIPS202.h"
 }
 
-namespace virgo {
+namespace virgo_ext {
     class __hhash_digest {
     public:
         __m128i h0, h1;

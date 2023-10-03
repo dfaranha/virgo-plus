@@ -4,10 +4,10 @@
 #include "../lib/virgo/include/inputCircuit.hpp"
 
 using namespace std;
-using namespace virgo;
+using namespace virgo_ext;
 
 void test_field_arithmetic() {
-	virgo::fieldElement a, b, c, d, e;
+	virgo_ext::fieldElement a, b, c, d, e;
 	for (int i = 0; i < 1000; i++) {
 		a = fieldElement::random();
 		b = fieldElement::random();

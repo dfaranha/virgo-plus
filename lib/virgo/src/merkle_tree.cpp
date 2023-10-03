@@ -1,7 +1,7 @@
 #include "fieldElement.hpp"
 #include "merkle_tree.h"
 
-namespace virgo {
+namespace virgo_ext {
     int merkle_tree::size_after_padding;
 
     void merkle_tree::merkle_tree_prover::create_tree(void *src_data, int ele_num, __hhash_digest *&dst,

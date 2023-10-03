@@ -3,7 +3,7 @@
 #include "constants.h"
 #include "fri.h"
 
-namespace virgo {
+namespace virgo_ext {
     __hhash_digest merkle_root;
 
     __hhash_digest vpd_prover_init(fieldElement *l_eval, fieldElement *&l_coef, int log_input_length, int slice_size,

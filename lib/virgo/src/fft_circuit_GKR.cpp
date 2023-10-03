@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace virgo {
+namespace virgo_ext {
     namespace fft_circuit_gkr {
         class circuit {
         public:

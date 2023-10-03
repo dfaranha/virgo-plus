@@ -1,6 +1,6 @@
 #pragma once
 
-namespace virgo {
+namespace virgo_ext {
     const int max_fri_depth = 30;
     const int ldt_repeat_num = 33;
 //2^log_slice_number slices, each slice contains N/2^{log_slice_number+1} elements, each element is a pair of 

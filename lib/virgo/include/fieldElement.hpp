@@ -11,7 +11,7 @@
 using std::vector;
 using std::ostream;
 
-namespace virgo {
+namespace virgo_ext {
     class fieldElementPacked;
 
     class fieldElement {
