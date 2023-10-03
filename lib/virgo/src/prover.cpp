@@ -226,7 +226,6 @@ void prover::sumcheckInitPhase1(const F &assert_random)
         u64 u = info.u;
         u64 v = info.v;
         u64 lv = info.lv;
-
         F &tmp = beta_g[g];
         switch (ty) {
             case gateType::Add:
@@ -253,7 +252,7 @@ void prover::sumcheckInitPhase1(const F &assert_random)
                 break;
             case gateType::Addc:
                 tmp_add[u] = tmp_add[u] + info.c * tmp;
-                tmp_mult[u] = tmp_mult[u] + tmp;
+                //tmp_mult[u] = tmp_mult[u] + tmp;
                 break;
             case gateType::Mulc:
                 tmp_mult[u] = tmp_mult[u] + info.c * tmp;

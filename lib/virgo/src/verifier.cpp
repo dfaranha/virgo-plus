@@ -68,6 +68,7 @@ void verifier::predicatePhase1(int layer_id) {
         switch (gate.ty) {
             case gateType::Addc:
                 bias += beta_g[g] * beta_u[gate.u] * gate.c;
+                break;
             case gateType::Not: case gateType::Copy:
                 coeff_l[(u64) gate.ty] += beta_g[g] * beta_u[gate.u];
                 break;
