@@ -112,7 +112,7 @@ namespace virgo_ext {
 		rcp = 1 + ((__int128_t) 1 << (2 * len)) / mod;
 
 		__max_order = 0;
-		unsigned long long order = prime * prime - 1;
+		unsigned long long order = prime - 1;
 		while (order % 2 == 0) {
 			__max_order++;
 			order = order >> 1;
@@ -245,8 +245,8 @@ namespace virgo_ext {
 
 	fieldElement fieldElement::getRootOfUnity(int log_order) {
 		fieldElement root;
-		root.elem[0] = 0;
-		root.elem[1] = rou;
+		root.elem[0] = rou;
+		root.elem[1] = 0;
 
 		assert(log_order <= __max_order);
 
