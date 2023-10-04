@@ -93,6 +93,7 @@ namespace virgo {
         static double self_speed_test_mult(int repeat);
         static double self_speed_test_add(int repeat);
 
+        unsigned long long elem;
     protected:
         static unsigned long long myMod(unsigned long long x);
         static unsigned long long mymult(const unsigned long long x, const unsigned long long y);
@@ -102,7 +103,6 @@ namespace virgo {
         static unsigned long long rcp;
         static unsigned int len;
         static unsigned int __max_order;
-        unsigned long long elem;
 
         friend fieldElementPacked;
     };
