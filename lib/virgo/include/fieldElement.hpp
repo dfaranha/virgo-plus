@@ -7,13 +7,12 @@
 #include <vector>
 #include <cstdio>
 #include <iostream>
+#include "baseFieldElement.hpp"
 
 using std::vector;
 using std::ostream;
 
 namespace virgo_ext {
-    class fieldElementPacked;
-
     class fieldElement {
     public:
         fieldElement();
@@ -23,6 +22,8 @@ namespace virgo_ext {
         fieldElement(long long x);
 
         fieldElement(long long x, long long y);
+
+		fieldElement(baseFieldElement x);
 
         fieldElement operator+(const fieldElement &other) const;
 
@@ -88,22 +89,10 @@ namespace virgo_ext {
         static bool isCounting;
         static bool isSumchecking;
 
-        unsigned long long elem[2];
+        baseFieldElement elem[3];
 
         static double self_speed_test_mult(int repeat);
-        static double self_speed_test_add(int repeat);
-
-    protected:
-        static unsigned long long myMod(unsigned long long x);
-        static unsigned long long mymult(const unsigned long long x, const unsigned long long y);
-        static unsigned long long randomNumber();
-        static unsigned long long mod;
-        static unsigned long long rou;
-        static unsigned long long rcp;
-        static unsigned int len;
-        static unsigned int __max_order;
-
-        friend fieldElementPacked;
+        static double self_speed_test_add(int repeat);        
     };
 }
 

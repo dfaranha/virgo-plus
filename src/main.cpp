@@ -28,6 +28,11 @@ void test_field_arithmetic() {
 		e = a + (b + c);
 		assert(d == e);
 
+		auto x = baseFieldElement::random();
+		auto y = baseFieldElement(-3, 1);
+		auto z = x.mulNor();
+		assert(x * y == z);
+
 		c = a * b;
 		d = b * a;
 		assert(c == d);
@@ -274,7 +279,6 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
         }
     }
 }
-
 
 #define REL 1
 #define PRIME 0x1ffffc00000001

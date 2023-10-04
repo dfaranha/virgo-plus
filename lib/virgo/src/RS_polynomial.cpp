@@ -5,7 +5,6 @@ using namespace std;
 
 namespace virgo_ext {
     fieldElement *__dst[3];
-    fieldElementPacked *__avx_dst[2];
     fieldElement *twiddle_factor;
 
     void init_scratch_pad(int order) {
