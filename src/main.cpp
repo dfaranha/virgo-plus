@@ -268,11 +268,11 @@ void parse(vector<DAG_gate *> &in_circuit_dag, ifstream &circuit_in) {
 
 
 #define REL 1
-#define PRIME 0x7ffff6000000001
-#define ROOT  16792131627006059
+//#define PRIME 0x7ffff6000000001
+//#define ROOT  16792131627006059
 
-//#define PRIME 288225016032526337
-//#define ROOT  40561959684870638
+#define PRIME 0x1ffffc00000001
+#define ROOT  0xdff68c4164c0f
 
 F* public_array_prepare_generic(F *public_array, int log_length)
 {
