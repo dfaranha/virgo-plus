@@ -1,0 +1,104 @@
+[
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/HE_word.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/HE_word.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/HE_word.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/HE_word.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/RS_polynomial.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/RS_polynomial.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/RS_polynomial.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/RS_polynomial.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/baseFieldElement.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/baseFieldElement.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/baseFieldElement.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/baseFieldElement.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/circuit.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/circuit.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/circuit.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/circuit.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/fft_circuit_GKR.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/fft_circuit_GKR.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/fft_circuit_GKR.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/fft_circuit_GKR.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/fieldElement.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/fieldElement.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/fieldElement.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/fieldElement.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/fri.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/fri.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/fri.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/fri.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/merkle_tree.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/merkle_tree.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/merkle_tree.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/merkle_tree.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/poly_commit.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/poly_commit.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/poly_commit.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/poly_commit.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/polynomial.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/polynomial.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/polynomial.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/polynomial.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/prover.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/prover.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/prover.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/prover.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/timer.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/timer.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/timer.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/timer.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/utils.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/utils.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/utils.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/utils.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/verifier.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/verifier.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/verifier.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/verifier.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/vpd_prover.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/vpd_prover.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/vpd_prover.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/vpd_prover.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/lib/virgo/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../include -I/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/../../../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -Wall -march=native -faligned-new -g -std=gnu++17 -o CMakeFiles/virgo_lib.dir/vpd_verifier.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/vpd_verifier.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/src/vpd_verifier.cpp",
+  "output": "lib/virgo/src/CMakeFiles/virgo_lib.dir/vpd_verifier.cpp.o"
+},
+{
+  "directory": "/home/antonio/projects/vcfhe/virgo_fpd/build/src",
+  "command": "/usr/bin/g++ -DUSE_VIRGO -I/home/antonio/projects/vcfhe/virgo_fpd/lib -I/home/antonio/projects/vcfhe/virgo_fpd/src/. -I/home/antonio/projects/vcfhe/virgo_fpd/src/../lib/virgo/include -I/home/antonio/projects/vcfhe/virgo_fpd/src/../../HElib/build/helib_pack/include -w -march=native -faligned-new -mavx -g -std=gnu++17 -o CMakeFiles/virgo_plus_run.dir/main.cpp.o -c /home/antonio/projects/vcfhe/virgo_fpd/src/main.cpp",
+  "file": "/home/antonio/projects/vcfhe/virgo_fpd/src/main.cpp",
+  "output": "src/CMakeFiles/virgo_plus_run.dir/main.cpp.o"
+}
+]

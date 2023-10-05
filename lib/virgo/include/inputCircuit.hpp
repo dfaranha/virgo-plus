@@ -2,8 +2,8 @@
 // Created by 69029 on 7/19/2021.
 //
 
-#ifndef VIRGO_PLUS_INPUTCIRCUIT_HPP
-#define VIRGO_PLUS_INPUTCIRCUIT_HPP
+#ifndef VIRGO_PLUS_INPUTCIRCUIT_HPPfpd
+#define VIRGO_PLUS_INPUTCIRCUIT_HPPfpd
 #include <bits/stdc++.h>
 using std::pair;
 using std::vector;

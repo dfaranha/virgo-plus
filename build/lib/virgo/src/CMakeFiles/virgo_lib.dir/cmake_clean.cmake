@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/virgo_lib.dir/HE_word.cpp.o"
+  "CMakeFiles/virgo_lib.dir/HE_word.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/RS_polynomial.cpp.o"
+  "CMakeFiles/virgo_lib.dir/RS_polynomial.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/baseFieldElement.cpp.o"
+  "CMakeFiles/virgo_lib.dir/baseFieldElement.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/circuit.cpp.o"
+  "CMakeFiles/virgo_lib.dir/circuit.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/fft_circuit_GKR.cpp.o"
+  "CMakeFiles/virgo_lib.dir/fft_circuit_GKR.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/fieldElement.cpp.o"
+  "CMakeFiles/virgo_lib.dir/fieldElement.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/fri.cpp.o"
+  "CMakeFiles/virgo_lib.dir/fri.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/merkle_tree.cpp.o"
+  "CMakeFiles/virgo_lib.dir/merkle_tree.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/poly_commit.cpp.o"
+  "CMakeFiles/virgo_lib.dir/poly_commit.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/polynomial.cpp.o"
+  "CMakeFiles/virgo_lib.dir/polynomial.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/prover.cpp.o"
+  "CMakeFiles/virgo_lib.dir/prover.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/timer.cpp.o"
+  "CMakeFiles/virgo_lib.dir/timer.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/utils.cpp.o"
+  "CMakeFiles/virgo_lib.dir/utils.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/verifier.cpp.o"
+  "CMakeFiles/virgo_lib.dir/verifier.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/vpd_prover.cpp.o"
+  "CMakeFiles/virgo_lib.dir/vpd_prover.cpp.o.d"
+  "CMakeFiles/virgo_lib.dir/vpd_verifier.cpp.o"
+  "CMakeFiles/virgo_lib.dir/vpd_verifier.cpp.o.d"
+  "libvirgo_lib.a"
+  "libvirgo_lib.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/virgo_lib.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

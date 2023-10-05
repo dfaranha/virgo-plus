@@ -16,7 +16,10 @@ namespace virgo_ext {
 	bool fieldElement::isSumchecking;
 
 	fieldElement::fieldElement() {
-		elem[0] = elem[1] = elem[2] = 0;
+		elem[0] = elem[1] = elem[2] = baseFieldElement(0);
+		assert(elem[0].cleartext);
+		assert(elem[1].cleartext);
+		assert(elem[2].cleartext);
 	}
 	
 	fieldElement::fieldElement(const fieldElement & b) {
@@ -27,17 +30,22 @@ namespace virgo_ext {
 
 	fieldElement::fieldElement(long long x) {
 		elem[0] = baseFieldElement(x);
-		elem[1] = elem[2] = 0;
+		elem[1] = elem[2] = baseFieldElement(0);
 	}
 
 	fieldElement::fieldElement(baseFieldElement x) {
 		elem[0] = x;
-		elem[1] = elem[2] = 0;
+		elem[1] = elem[2] = baseFieldElement(0);
+	}
+
+	fieldElement::fieldElement(helib::Ctxt &x) {
+		elem[0] = baseFieldElement(x);
+		elem[1] = elem[2] = baseFieldElement(0);
 	}
 
 	fieldElement::fieldElement(long long int x, long long int y) {
 		elem[0] = baseFieldElement(x, y);
-		elem[1] = elem[2] = 0;
+		elem[1] = elem[2] = baseFieldElement(0);
 	}
 
 	fieldElement fieldElement::operator+(const fieldElement & other) const {

@@ -1,5 +1,5 @@
-#ifndef __vpd_verifier
-#define __vpd_verifier
+#ifndef __vpd_verifierfpd
+#define __vpd_verifierfpd
 #include <vector>
 #include "fieldElement.hpp"
 namespace virgo_ext {

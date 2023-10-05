@@ -315,6 +315,7 @@ namespace virgo_ext {
             //CHECK last rs code
             for (int i = 0; i < slice_count - 1; ++i) {
                 auto tmplate = fri::cpd.rs_codeword[com.mx_depth - 1][0 << (log_slice_number + 1) | i << 1 | 0];
+                printf("code_word: %ld\n", tmplate.elem);
                 for (int j = 0; j < (1 << (rs_code_rate - 1)); ++j) {
                     if (fri::cpd.rs_codeword[com.mx_depth - 1][j << (log_slice_number + 1) | i << 1 | 0] != tmplate) {
                         fprintf(stderr, "Fri rs code check fail\n");
@@ -322,12 +323,15 @@ namespace virgo_ext {
                     }
                 }
             }
-            for (int j = 1; j < (1 << rs_code_rate); ++j)
+            for (int j = 1; j < (1 << rs_code_rate); ++j){
+                printf("code_word_msk: %ld\n", fri::cpd.rs_codeword_msk[com.mx_depth - 1][j].elem);
                 if (fri::cpd.rs_codeword_msk[com.mx_depth - 1][j] !=
                     fri::cpd.rs_codeword_msk[com.mx_depth - 1][j - 1]) {
                     fprintf(stderr, "Fri msk rs code check fail\n");
                     return false;
                 }
+
+            }
         }
         return true;
     }

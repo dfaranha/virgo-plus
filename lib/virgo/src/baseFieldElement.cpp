@@ -20,6 +20,9 @@ namespace virgo_ext {
 	bool baseFieldElement::isCounting;
 	bool baseFieldElement::isSumchecking;
 
+	bool baseFieldElement::verifier_mode = false;
+  helib::SecKey * baseFieldElement::sk = NULL;
+
 	baseFieldElement::baseFieldElement() {
 		elem[0] = elem[1] = 0;
 	}
@@ -27,6 +30,18 @@ namespace virgo_ext {
 	baseFieldElement::baseFieldElement(const baseFieldElement & b) {
 		elem[0] = b.elem[0];
 		elem[1] = b.elem[1];
+		if(!b.cleartext){
+			elemHE[0] = new helib::Ctxt(*(b.elemHE[0]));
+			elemHE[1] = new helib::Ctxt(*(b.elemHE[1]));
+		}
+		cleartext = b.cleartext;
+	}
+
+	baseFieldElement::baseFieldElement(helib::Ctxt &x) {
+		cleartext = false;
+		elemHE[0] = &x;
+		elemHE[1] = new helib::Ctxt(helib::ZeroCtxtLike, x);
+		elem[0] = elem[1] = 0;
 	}
 
 	baseFieldElement::baseFieldElement(long long x) {
@@ -49,6 +64,16 @@ namespace virgo_ext {
 			if (mod <= ret.elem[i])
 				ret.elem[i] = ret.elem[i] - mod;
 		}
+		if(!(cleartext && other.cleartext)){
+			ret.cleartext = false;
+			auto a = cleartext ? &other : &(*this);
+			auto b = !cleartext ? &other : &(*this);
+			for (size_t i = 0; i < 2; i++){
+				ret.elemHE[i] = new helib::Ctxt(*(a->elemHE[i]));
+				if(b->cleartext) ret.elemHE[i]->addConstant((long) b->elem[i]);
+				else ret.elemHE[i]->addCtxt(*(b->elemHE[i]));
+			}
+		}
 		return ret;
 	}
 
@@ -62,6 +87,16 @@ namespace virgo_ext {
 			ret.elem[i] = elem[i] + t;
 			if (ret.elem[i] >= mod)
 				ret.elem[i] -= mod;
+		}
+		if(!(cleartext && other.cleartext)){
+			ret.cleartext = false;
+			auto a = cleartext ? &other : &(*this);
+			auto b = !cleartext ? &other : &(*this);
+			for (size_t i = 0; i < 2; i++){
+				ret.elemHE[i] = new helib::Ctxt(*(a->elemHE[i]));
+				if(b->cleartext) ret.elemHE[i]->addConstant((long) b->elem[i], true);
+				else ret.elemHE[i]->addCtxt(*(b->elemHE[i]), true);
+			}
 		}
 		return ret;
 	}
@@ -92,6 +127,39 @@ namespace virgo_ext {
 		while (t1 >= mod)
 			t1 -= mod;
 		ret.elem[1] = t1;
+
+		if(!(cleartext && other.cleartext)){
+			ret.cleartext = false;
+			auto a = cleartext ? &other : &(*this);
+			auto b = !cleartext ? &other : &(*this);
+			assert(mod == a->elemHE[0]->getPtxtSpace());
+			if(!b->cleartext){
+				throw std::invalid_argument("Multiplications between ciphertexts should not occur");
+			}
+			auto tb = b->elem[0] + b->elem[1];
+			if (tb >= mod) tb -= mod;
+			auto tmp = helib::Ctxt(*(a->elemHE[0])); // tmp = a[0]
+			tmp.addCtxt(*(a->elemHE[1])); // tmp = ta
+			tmp.multByConstant((int64_t) tb); // tmp = all_prod = ta*tb
+			ret.elemHE[1] = new helib::Ctxt(tmp); // ret[1] = all_prod
+
+			tmp = *(a->elemHE[0]);
+			tmp.multByConstant((int64_t) b->elem[0]); // tmp = ac
+			ret.elemHE[0] = new helib::Ctxt(tmp);  // ret[0] = ac
+
+			tmp.negate();
+			ret.elemHE[1]->addCtxt(tmp); // ret[1] = all_prod - ac
+
+			tmp = *(a->elemHE[1]);
+			tmp.multByConstant((int64_t) b->elem[1]); // tmp = bd
+			tmp.negate(); // tmp = - bd
+
+			ret.elemHE[1]->addCtxt(tmp); // ret[1] = all_prod - ac - bd
+
+			tmp.multByConstant(3l);// tmp = - 3bd
+
+			ret.elemHE[0]->addCtxt(tmp); // // ret[0] = ac - 3*bd
+		}
 		return ret;
 	}
 
@@ -130,8 +198,28 @@ namespace virgo_ext {
 		return ret;
 	}
 
+	void baseFieldElement::check_verifier_mode(const baseFieldElement & other) const {
+		if(cleartext && other.cleartext) return; // both are cleartext
+		if(!verifier_mode) throw std::logic_error("Prover cannot perform comparisons on ciphertexts");
+		if(cleartext || other.cleartext) throw std::logic_error("Connot compare cleartext with ciphertext");
+	}
+
 	bool baseFieldElement::operator!=(const baseFieldElement & other) const {
-		return elem[0] != other.elem[0] || elem[1] != other.elem[1];
+		check_verifier_mode(other);
+		if(cleartext && other.cleartext){
+			return elem[0] != other.elem[0] || elem[1] != other.elem[1];
+		}
+		auto a = cleartext ? &other : &(*this);
+		auto b = !cleartext ? &other : &(*this);
+		helib::Ptxt<helib::BGV> pa0(sk->getContext());
+		helib::Ptxt<helib::BGV> pa1(sk->getContext());
+		helib::Ptxt<helib::BGV> pb0(sk->getContext());
+		helib::Ptxt<helib::BGV> pb1(sk->getContext());
+		sk->Decrypt(pa0, *(a->elemHE[0]));
+		sk->Decrypt(pa1, *(a->elemHE[1]));
+		sk->Decrypt(pb0, *(b->elemHE[0]));
+		sk->Decrypt(pb1, *(b->elemHE[1]));
+		return pa0 != pb0 || pa1 != pb1;
 	}
 	
 	bool baseFieldElement::operator==(const baseFieldElement & other) const {
@@ -141,6 +229,18 @@ namespace virgo_ext {
 	baseFieldElement & baseFieldElement::operator=(const baseFieldElement & other) {
 		elem[0] = other.elem[0];
 		elem[1] = other.elem[1];
+		if(!cleartext && !other.cleartext){
+			*(elemHE[0]) = *(other.elemHE[0]);
+			*(elemHE[1]) = *(other.elemHE[1]);
+		}else if(!other.cleartext){
+			elemHE[0] = new helib::Ctxt(*(other.elemHE[0]));
+			elemHE[1] = new helib::Ctxt(*(other.elemHE[1]));
+			cleartext = false;
+		}else if(!cleartext){
+			delete elemHE[0];
+			delete elemHE[1];
+			cleartext = true;
+		}
 		return *this;
 	}
 
@@ -160,28 +260,34 @@ namespace virgo_ext {
 	}
 
 	baseFieldElement::operator  bool () const {
+		assert(cleartext);
 		return elem[0] || elem[1];
 	}
 	
 	bool baseFieldElement::isNegative() const {
+		assert(cleartext);
 		return (elem[0] > (mod >> 1)) && (elem[1] == 0);
 	}
 	
 	unsigned char baseFieldElement::getBit(unsigned int i) const {
+		assert(cleartext);
 		assert(elem[1] == 0);
 		return (elem[0] >> i) & 1;
 	}
 	
 	bool baseFieldElement::operator<(const baseFieldElement & other) const {
+		assert(cleartext);
 		assert(elem[1] == 0);
 		return elem[0] < other.elem[0];
 	}
 	
 	bool baseFieldElement::isZero() {
+		assert(cleartext);
 		return !elem[0] && !elem[1];
 	}
 
 	baseFieldElement baseFieldElement::abs() const {
+		assert(cleartext);
 		assert(elem[1] == 0);
 		baseFieldElement res = -*this;
 		 return res.elem[0] < this->elem[0] ? res : elem[0];
@@ -192,6 +298,7 @@ namespace virgo_ext {
 	}
 	
 	baseFieldElement baseFieldElement::inv() const {
+		assert(cleartext);
 		baseFieldElement ret;
 		auto t0 = mymult(elem[0], elem[0]);
 		auto t1 = mymult(elem[1], elem[1]);
@@ -322,7 +429,8 @@ namespace virgo_ext {
 	}
 	
 	ostream & operator<<(ostream & out, const baseFieldElement & c) {
-		out << '(' << c.elem[0] << ',' << c.elem[1] << ')';
+		if(!c.cleartext) out << "(Encrypted)";
+		else out << '(' << c.elem[0] << ',' << c.elem[1] << ')';
 		return out;
 	}
 

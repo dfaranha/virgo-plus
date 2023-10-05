@@ -1,5 +1,5 @@
-#ifndef __fri
-#define __fri
+#ifndef __frifpd
+#define __frifpd
 #include "merkle_tree.h"
 #include <utility>
 #include "fieldElement.hpp"

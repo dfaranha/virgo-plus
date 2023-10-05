@@ -7,6 +7,8 @@
 #include <vector>
 #include <cstdio>
 #include <iostream>
+#include <helib/helib.h>
+#include <helib/zeroValue.h>
 
 using std::vector;
 using std::ostream;
@@ -21,6 +23,8 @@ namespace virgo_ext {
         baseFieldElement(const baseFieldElement &b);
 
         baseFieldElement(long long x);
+
+        baseFieldElement(helib::Ctxt &x);
 
         baseFieldElement(long long x, long long y);
 
@@ -90,11 +94,18 @@ namespace virgo_ext {
         static bool isSumchecking;
 
         unsigned long long elem[2];
+        helib::Ctxt * elemHE[2];
+        helib::Ptxt<helib::BGV> * elemCT[2];
+
+        bool cleartext = true;
+        void check_verifier_mode(const baseFieldElement & other) const;
 
         static double self_speed_test_mult(int repeat);
         static double self_speed_test_add(int repeat);
 
     protected:
+        static bool verifier_mode;
+        static helib::SecKey * sk;
         static unsigned long long myMod(unsigned long long x);
         static unsigned long long mymult(const unsigned long long x, const unsigned long long y);
         static unsigned long long randomNumber();

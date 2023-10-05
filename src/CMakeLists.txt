@@ -1,6 +1,8 @@
 aux_source_directory(. SRC)
 include_directories(.)
 include_directories(../lib/virgo/include)
+include_directories("../../HElib/build/helib_pack/include/")
+link_directories("../../HElib/build/helib_pack/lib/")
 add_executable(virgo_plus_run ${SRC})
 
 if(PC_OPTION STREQUAL "virgo")

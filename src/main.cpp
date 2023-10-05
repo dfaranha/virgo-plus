@@ -313,21 +313,21 @@ int main(int argc, char **argv) {
 	vector<DAG_gate *> in_circuit_dag;
 	F::init(PRIME, ROOT);
 
-    ifstream circuit_in(argv[REL]);
-    parse(in_circuit_dag, circuit_in);
-    DAG_to_layered(c, in_circuit_dag);
-	// Configure prime field.
-	test_field_arithmetic();
+    // ifstream circuit_in(argv[REL]);
+    // parse(in_circuit_dag, circuit_in);
+    // DAG_to_layered(c, in_circuit_dag);
+	// // Configure prime field.
+	// test_field_arithmetic();
 
-    fclose(stdin);
+    // fclose(stdin);
 
-	c.subsetInit();
-    prover p(c);
-    verifier v(&p, c);
-    v.verify();
-    //debug_print_circuit(c);
+	// c.subsetInit();
+    // prover p(c);
+    // verifier v(&p, c);
+    // v.verify();
+    // //debug_print_circuit(c);
 
-    fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
+    // fprintf(stdout, "mult counter %d, add counter %d\n", F::multCounter, F::addCounter);
 
 	/* Now just the polynomial commitment. */
 	poly_commit::poly_commit_prover prover;

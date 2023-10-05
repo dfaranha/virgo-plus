@@ -21,6 +21,8 @@ namespace virgo_ext {
 
         fieldElement(long long x);
 
+        fieldElement(helib::Ctxt &x);
+
         fieldElement(long long x, long long y);
 
 		fieldElement(baseFieldElement x);

@@ -1,0 +1,269 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "src/virgo_plus_run"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"link_directories",
+			"target_link_libraries",
+			"add_definitions",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"src/CMakeLists.txt",
+			"CMakeLists.txt",
+			"lib/virgo/src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 6,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 14,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 15,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 5,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 9,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 10,
+				"parent" : 0
+			},
+			{
+				"file" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 7,
+				"parent" : 8
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 13,
+				"parent" : 2
+			},
+			{
+				"command" : 4,
+				"file" : 1,
+				"line" : 8,
+				"parent" : 2
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 2,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 3,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 4,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-w -march=native -faligned-new -mavx -g -std=gnu++17"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 10,
+					"define" : "USE_VIRGO"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 11,
+					"path" : "/home/antonio/projects/vcfhe/virgo_fpd/lib"
+				},
+				{
+					"backtrace" : 12,
+					"path" : "/home/antonio/projects/vcfhe/virgo_fpd/src/."
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/antonio/projects/vcfhe/virgo_fpd/src/../lib/virgo/include"
+				},
+				{
+					"backtrace" : 14,
+					"path" : "/home/antonio/projects/vcfhe/virgo_fpd/src/../../HElib/build/helib_pack/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 6,
+			"id" : "virgo_lib::@6f6f907cca51041f4d16"
+		}
+	],
+	"id" : "virgo_plus_run::@145eef247bfb46b6828c",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-w -march=native -faligned-new -mavx -g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-L/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "-L/home/antonio/projects/vcfhe/virgo_fpd/../HElib/build/helib_pack/lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "-L/home/antonio/projects/vcfhe/virgo_fpd/src/../../HElib/build/helib_pack/lib",
+				"role" : "libraryPath"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/antonio/projects/vcfhe/virgo_fpd/lib/virgo/lib:/home/antonio/projects/vcfhe/virgo_fpd/../HElib/build/helib_pack/lib:/home/antonio/projects/vcfhe/virgo_fpd/src/../../HElib/build/helib_pack/lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 6,
+				"fragment" : "../lib/virgo/src/libvirgo_lib.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 6,
+				"fragment" : "-lXKCP",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 6,
+				"fragment" : "../lib/virgo/src/libvirgo_lib.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 7,
+				"fragment" : "-lgmp",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 6,
+				"fragment" : "-lXKCP",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 9,
+				"fragment" : "-lhelib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 9,
+				"fragment" : "-lntl",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 7,
+				"fragment" : "-lgmp",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "virgo_plus_run",
+	"nameOnDisk" : "virgo_plus_run",
+	"paths" : 
+	{
+		"build" : "src",
+		"source" : "src"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/main.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

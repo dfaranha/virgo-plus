@@ -1,5 +1,5 @@
-#ifndef __RS_polynomial
-#define __RS_polynomial
+#ifndef __RS_polynomialfpd
+#define __RS_polynomialfpd
 
 #include "my_hhash.h"
 #include "merkle_tree.h"

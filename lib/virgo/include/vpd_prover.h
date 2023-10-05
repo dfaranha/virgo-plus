@@ -1,5 +1,5 @@
-#ifndef __vpd_prover
-#define __vpd_prover
+#ifndef __vpd_proverfpd
+#define __vpd_proverfpd
 #include <vector>
 #include "fieldElement.hpp"
 #include "my_hhash.h"

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(virgo-plus)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-w -march=native -faligned-new -mavx")
 set(CMAKE_C_FLAGS "-w -march=native -faligned-new -mavx")
 
@@ -12,6 +12,7 @@ set(PC_OPTION "virgo" CACHE STRING "PC OPTION chosen by the user as the type of 
 if(PC_OPTION STREQUAL "virgo")
     add_definitions(-DUSE_VIRGO)
     link_directories(lib/virgo/lib)
+    link_directories("../HElib/build/helib_pack/lib/")
     add_subdirectory(lib/virgo)
 endif()
 

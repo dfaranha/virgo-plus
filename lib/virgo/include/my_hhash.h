@@ -1,5 +1,5 @@
-#ifndef __hhash
-#define __hhash
+#ifndef __hhashfpd
+#define __hhashfpd
 
 /**extra 'h' before hhash can avoid some strange error by the compiler*/
 

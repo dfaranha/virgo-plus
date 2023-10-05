@@ -1,5 +1,5 @@
-#ifndef __merkle_tree
-#define __merkle_tree
+#ifndef __merkle_treefpd
+#define __merkle_treefpd
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
