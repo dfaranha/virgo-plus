@@ -360,5 +360,23 @@ int main(int argc, char **argv) {
 		cout << "Verification pass in the poly commitment!" << endl;
 	}
 
+	fri::delete_self();
     return 0;
+
+	auto d = fri::request_init_commit(8, 0);
+	fri::commit_phase_step(fieldElement::random());
+	fieldElement *final = fri::commit_phase_final();
+	for (size_t i = 0; i < 64 * poly_commit::slice_count; i++) {
+		//cout << final[i] << endl;
+	}
+	for (int i = 0; i < poly_commit::slice_count - 1; ++i) {
+		auto tmplate = fri::cpd.rs_codeword[0][0 << (log_slice_number + 1) | i << 1 | 0];
+		for (int j = 0; j < (1 << (rs_code_rate - 1)); ++j) {
+			if (fri::cpd.rs_codeword[0][j << (log_slice_number + 1) | i << 1 | 0] != tmplate) {
+				fprintf(stderr, "Fri rs code check fail\n");
+				return false;
+			}
+		}
+	}
+	fri::delete_self();
 }
