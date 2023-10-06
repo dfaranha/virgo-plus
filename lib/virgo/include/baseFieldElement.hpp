@@ -20,6 +20,7 @@ namespace virgo_ext {
     class baseFieldElement {
     public:
         baseFieldElement();
+        ~baseFieldElement();
 
         baseFieldElement(const baseFieldElement &b);
 

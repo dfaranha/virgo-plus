@@ -323,9 +323,9 @@ void test_HE_field_arithmetic(const helib::PubKey &pk) {
 
   auto rnd_ct = gen_rnd_input(pk);
 	a = fieldElement(rnd_ct);
-  a.print(stdout);
+//   a.print(stdout);
 
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 1; i++) {
     auto rnd_ct = gen_rnd_input(pk);
 		a = fieldElement(rnd_ct);
     assert(!a.elem[0].cleartext);

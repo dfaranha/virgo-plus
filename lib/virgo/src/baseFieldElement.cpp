@@ -8,6 +8,14 @@
 #include <cstdint>
 
 using namespace std;
+// #define __DEBUG_HE_CHECK
+#ifdef __DEBUG_HE_CHECK
+	#define __DEBUG_CHECK if(!cleartext) __debug_check_mirror(elem, elemHE, sk);
+	#define __DEBUG_CHECK_OTHER(x) if(!x.cleartext) __debug_check_mirror(x.elem, x.elemHE, sk);
+#else
+	#define __DEBUG_CHECK
+	#define __DEBUG_CHECK_OTHER(x)
+#endif
 
 namespace virgo_ext {
 	unsigned long long baseFieldElement::mod = 0;
@@ -25,6 +33,37 @@ namespace virgo_ext {
 
 	baseFieldElement::baseFieldElement() {
 		elem[0] = elem[1] = 0;
+	}
+
+	baseFieldElement::~baseFieldElement() {
+		if(!cleartext){
+			delete elemHE[0];
+			delete elemHE[1];
+		}
+	}
+
+	void __debug_get_first_element(unsigned long long out[2], helib::Ctxt * const elemHE[2], helib::SecKey * sk){
+		helib::Ptxt<helib::BGV> pa0(sk->getContext());
+		helib::Ptxt<helib::BGV> pa1(sk->getContext());
+		sk->Decrypt(pa0, *(elemHE[0]));
+		sk->Decrypt(pa1, *(elemHE[1]));
+		uint64_t x0 = 0, x1 = 0;
+		if(NTL::deg(pa0[0].getData()) == 0) NTL::conv(x0, pa0[0].getData()[0]);
+		if(NTL::deg(pa1[0].getData()) == 0) NTL::conv(x1, pa1[0].getData()[0]);
+		out[0] = x0;
+		out[1] = x1;
+	}
+
+	void __debug_check_mirror(const unsigned long long elem[2], helib::Ctxt * const elemHE[2], helib::SecKey * sk){
+		unsigned long long HE_value[2];
+		__debug_get_first_element(HE_value, elemHE, sk);
+		const uint64_t p = sk->getPtxtSpace();
+		const uint64_t expet0 = elem[0] % p, expet1 = elem[1] % p;
+		if(HE_value[0] != expet0 || HE_value[1] != expet1){
+			printf("Expected: (%lu, %lu) HE: (%lu, %lu)\n", expet0, expet1, HE_value[0], HE_value[1]);
+		}
+		assert(HE_value[0] == expet0);
+		assert(HE_value[1] == expet1);
 	}
 
   void baseFieldElement::hash(void * buffer){
@@ -57,6 +96,9 @@ namespace virgo_ext {
 		elemHE[0] = new helib::Ctxt(x);
 		elemHE[1] = new helib::Ctxt(helib::ZeroCtxtLike, x);
 		elem[0] = elem[1] = 0;
+#ifdef __DEBUG_HE_CHECK
+		__debug_get_first_element(elem, elemHE, sk);
+#endif
 	}
 
 	baseFieldElement::baseFieldElement(long long x) {
@@ -73,6 +115,7 @@ namespace virgo_ext {
 		if (isCounting) {
 			++addCounter;
 		}
+		__DEBUG_CHECK;
 		baseFieldElement ret;
 		for (size_t i = 0; i < 2; i++) {
 			ret.elem[i] = other.elem[i] + elem[i];
@@ -88,6 +131,7 @@ namespace virgo_ext {
 				if(b->cleartext) ret.elemHE[i]->addConstant((long) b->elem[i]);
 				else ret.elemHE[i]->addCtxt(*(b->elemHE[i]));
 			}
+			__DEBUG_CHECK_OTHER(ret);
 		}
 		return ret;
 	}
@@ -96,6 +140,7 @@ namespace virgo_ext {
 		if (isCounting) {
 			++addCounter;
 		}
+		__DEBUG_CHECK;
 		baseFieldElement ret;
 		for (size_t i = 0; i < 2; i++) {
 			auto t = mod - other.elem[i];	//tmp_r == -b.real is true in this prime field
@@ -111,7 +156,9 @@ namespace virgo_ext {
 				ret.elemHE[i] = new helib::Ctxt(*(a->elemHE[i]));
 				if(b->cleartext) ret.elemHE[i]->addConstant((long) b->elem[i], true);
 				else ret.elemHE[i]->addCtxt(*(b->elemHE[i]), true);
+				if(cleartext) ret.elemHE[i]->negate();
 			}
+			__DEBUG_CHECK_OTHER(ret);
 		}
 		return ret;
 	}
@@ -120,6 +167,7 @@ namespace virgo_ext {
 		if (isCounting) {
 			++multCounter;
 		}
+		__DEBUG_CHECK;
 		baseFieldElement ret;
 		auto t0 = elem[0] + elem[1];
 		if (t0 >= mod)
@@ -174,6 +222,7 @@ namespace virgo_ext {
 			tmp.multByConstant(3l);// tmp = - 3bd
 
 			ret.elemHE[0]->addCtxt(tmp); // // ret[0] = ac - 3*bd
+			__DEBUG_CHECK_OTHER(ret);
 		}
 		return ret;
 	}
@@ -256,6 +305,8 @@ namespace virgo_ext {
 			delete elemHE[1];
 			cleartext = true;
 		}
+		__DEBUG_CHECK_OTHER(other);
+		__DEBUG_CHECK;
 		return *this;
 	}
 
@@ -503,6 +554,7 @@ namespace virgo_ext {
 
 	baseFieldElement baseFieldElement::mulNor() {
 		unsigned long long lo, hi, neg;
+		__DEBUG_CHECK;
 
 		neg = (mod - elem[0]) + (mod - elem[1]);
 		lo = neg + neg + neg;
@@ -527,6 +579,7 @@ namespace virgo_ext {
 			ret.elemHE[0]->addCtxt(tmp); // (mod - elem[0]) + (mod - elem[1]);
 			ret.elemHE[0]->multByConstant(3l); // 3*((mod - elem[0]) + (mod - elem[1]));
 			ret.cleartext = false;
+			__DEBUG_CHECK_OTHER(ret);
 		}
 		return ret;
 	}

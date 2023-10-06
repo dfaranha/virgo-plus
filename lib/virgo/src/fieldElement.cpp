@@ -330,6 +330,7 @@ namespace virgo_ext {
 
 	char *fieldElement::toString() const {
 		char *s = new char[150];
+		assert(this->elem[0].cleartext);
 		 sprintf(s, "(%llu, %llu, %llu, %llu, %llu, %llu)", this->elem[0].elem[0], this->elem[0].elem[1], this->elem[1].elem[0], this->elem[1].elem[1], this->elem[2].elem[0], this->elem[2].elem[1]);
 		 return s;
 	}
