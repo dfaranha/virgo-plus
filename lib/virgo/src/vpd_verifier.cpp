@@ -34,14 +34,12 @@ namespace virgo_ext {
         memset(data, 0, sizeof data);
         assert(value.size() % 2 == 1);
         __hhash_digest value_h;
-		unsigned char _data[2 * sizeof(fieldElement) + sizeof(__hhash_digest)];
+        __hhash_digest _data[3];
         memset(&value_h, 0, sizeof(__hhash_digest));
         for (int i = 0; i < value.size(); ++i) {
-            fieldElement data_ele[2];
-            data_ele[0] = value[i].first;
-            data_ele[1] = value[i].second;
-            memcpy(_data, data_ele, 2 * sizeof(fieldElement));
-			memcpy(_data + 2 * sizeof(fieldElement), &value_h, sizeof(__hhash_digest));
+            value[i].first.hash(&(_data[0]));
+            value[i].second.hash(&(_data[1]));
+            _data[2] = value_h;
             my_hhash(_data, sizeof(_data), &value_h);
         }
         return equals(h, cur_hhash) && equals(value_h, merkle_path[len - 1]);
@@ -316,7 +314,6 @@ namespace virgo_ext {
             //CHECK last rs code
             for (int i = 0; i < slice_count - 1; ++i) {
                 auto tmplate = fri::cpd.rs_codeword[com.mx_depth - 1][0 << (log_slice_number + 1) | i << 1 | 0];
-                printf("code_word: %ld\n", tmplate.elem);
                 for (int j = 0; j < (1 << (rs_code_rate - 1)); ++j) {
                     if (fri::cpd.rs_codeword[com.mx_depth - 1][j << (log_slice_number + 1) | i << 1 | 0] != tmplate) {
                         fprintf(stderr, "Fri rs code check fail\n");
@@ -325,7 +322,6 @@ namespace virgo_ext {
                 }
             }
             for (int j = 1; j < (1 << rs_code_rate); ++j){
-                printf("code_word_msk: %ld\n", fri::cpd.rs_codeword_msk[com.mx_depth - 1][j].elem);
                 if (fri::cpd.rs_codeword_msk[com.mx_depth - 1][j] !=
                     fri::cpd.rs_codeword_msk[com.mx_depth - 1][j - 1]) {
                     fprintf(stderr, "Fri msk rs code check fail\n");

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <helib/helib.h>
 #include <helib/zeroValue.h>
+#include "my_hhash.h"
 
 using std::vector;
 using std::ostream;
@@ -68,6 +69,8 @@ namespace virgo_ext {
         void setAbs();
         void setSqr();
         void setInv();
+
+        void hash(void * buffer);
 
         void print(::FILE *fileno) const;
         char *toString() const;

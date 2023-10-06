@@ -28,6 +28,14 @@ namespace virgo_ext {
 		elem[2] = b.elem[2];
 	}
 
+	void fieldElement::hash(void * buffer) {
+		uint8_t tmp[32*3];
+		for (size_t i = 0; i < 3; i++){
+			elem[i].hash(&(tmp[32*i]));
+		}
+		my_hhash(tmp, 32*3, buffer);
+	}
+
 	fieldElement::fieldElement(long long x) {
 		elem[0] = baseFieldElement(x);
 		elem[1] = elem[2] = baseFieldElement(0);

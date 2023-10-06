@@ -26,6 +26,23 @@ namespace virgo_ext {
 	baseFieldElement::baseFieldElement() {
 		elem[0] = elem[1] = 0;
 	}
+
+  void baseFieldElement::hash(void * buffer){
+		if(cleartext){
+			my_hhash(elem, sizeof(elem), buffer);
+		}else{
+			std::stringstream tmp;
+			elemHE[0]->parts[0].writeTo(tmp);
+			elemHE[0]->parts[1].writeTo(tmp);
+			elemHE[1]->parts[0].writeTo(tmp);
+			elemHE[1]->parts[1].writeTo(tmp);
+			const size_t sz = tmp.gcount();
+			char tmp2[sz];
+			tmp.read(tmp2, sz);
+			my_hhash(tmp2, sz, buffer);
+		}
+	}
+
 	
 	baseFieldElement::baseFieldElement(const baseFieldElement & b) {
 		elem[0] = b.elem[0];

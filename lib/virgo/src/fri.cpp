@@ -92,16 +92,14 @@ namespace virgo_ext {
         }
         leaf_hash[oracle_indicator] = new __hhash_digest[1 << (log_current_witness_size_per_slice - 1)];
         for (int i = 0; i < (1 << (log_current_witness_size_per_slice - 1)); ++i) {
-            __hhash_digest tmp_hash;
+            __hhash_digest tmp_hash, data[3];
             memset(&tmp_hash, 0, sizeof(tmp_hash));
-            unsigned char data[2 * sizeof(fieldElement) + sizeof(__hhash_digest)];
             for (int j = 0; j < (1 << (log_leaf_size)); j += 2) {
-                memcpy(data, &witness_rs_codeword_interleaved[oracle_indicator][i << log_leaf_size | j],
-                       2 * sizeof(fieldElement));
-				memcpy(data + 2 * sizeof(fieldElement), &tmp_hash, sizeof(__hhash_digest));
+                witness_rs_codeword_interleaved[oracle_indicator][i << log_leaf_size | j].hash(&data[0]);
+                witness_rs_codeword_interleaved[oracle_indicator][(i << log_leaf_size | j) + 1].hash(&data[1]);
+                data[2] = tmp_hash;
                 my_hhash(data, sizeof(data), &tmp_hash);
             }
-            memset(data, 0, sizeof(__hhash_digest) * 2);
             fieldElement ele[2];
             if (oracle_indicator == 0) {
                 ele[0] = poly_commit::l_eval[(poly_commit::slice_count - 1) * poly_commit::slice_size + (i)];
@@ -115,8 +113,9 @@ namespace virgo_ext {
             assert((poly_commit::slice_count - 1) * poly_commit::slice_size +
                    (i + (1 << log_current_witness_size_per_slice) / 2) <
                    poly_commit::slice_count * poly_commit::slice_size);
-            memcpy(data, ele, sizeof(fieldElement) * 2);
-			memcpy(data + 2 * sizeof(fieldElement), &tmp_hash, sizeof(__hhash_digest));
+            ele[0].hash(&(data[0]));
+            ele[1].hash(&(data[1]));
+            data[2] = tmp_hash;
 			my_hhash(data, sizeof(data), &tmp_hash);
             leaf_hash[oracle_indicator][i] = tmp_hash;
         }
@@ -388,23 +387,20 @@ namespace virgo_ext {
         hash_val = new __hhash_digest[nxt_witness_size / 2];
         memset(&htmp, 0, sizeof(__hhash_digest));
         for (int i = 0; i < nxt_witness_size / 2; ++i) {
-            unsigned char data[2 * sizeof(fieldElement) + sizeof(__hhash_digest)];
+            __hhash_digest data[3];
             fieldElement data_ele[2];
-            memset(data, 0, 2 * sizeof(__hhash_digest));
             memset(&htmp, 0, sizeof(__hhash_digest));
             for (int j = 0; j < (1 << log_slice_number); ++j) {
                 int c = (i) << log_leaf_size | (j << 1) | 0, d = (i) << log_leaf_size | (j << 1) | 1;
-                data_ele[0] = cpd.rs_codeword[current_step_no][c];
-                data_ele[1] = cpd.rs_codeword[current_step_no][d];
-                memcpy(data, data_ele, 2 * sizeof(fieldElement));
-				memcpy(data + 2 * sizeof(fieldElement), &htmp, sizeof(__hhash_digest));
+                cpd.rs_codeword[current_step_no][c].hash(&(data[0]));
+                cpd.rs_codeword[current_step_no][d].hash(&(data[1]));
+                data[2] = htmp;
                 my_hhash(data, sizeof(data), &htmp);
             }
             int pos = cpd.rs_codeword_msk_mapping[current_step_no][i];
-            data_ele[0] = cpd.rs_codeword_msk[current_step_no][pos];
-            data_ele[1] = cpd.rs_codeword_msk[current_step_no][pos | 1];
-			memcpy(data, data_ele, 2 * sizeof(fieldElement));
-			memcpy(data + 2 * sizeof(fieldElement), &htmp, sizeof(__hhash_digest));
+            cpd.rs_codeword_msk[current_step_no][pos].hash(&(data[0]));
+            cpd.rs_codeword_msk[current_step_no][pos | 1].hash(&(data[1]));
+            data[2] = htmp;
 			my_hhash(data, sizeof(data), &htmp);
             hash_val[i] = htmp;
         }
