@@ -15,21 +15,28 @@ extern "C"{
 namespace virgo_ext {
     class __hhash_digest {
     public:
-        __m128i h0, h1, h2;
+        __m128i h0, h1;
     };
 
     inline bool equals(const __hhash_digest &a, const __hhash_digest &b) {
         __m128i v0 = _mm_xor_si128(a.h0, b.h0);
         __m128i v1 = _mm_xor_si128(a.h1, b.h1);
-		__m128i v2 = _mm_xor_si128(a.h2, b.h2);
-        return _mm_test_all_zeros(v0, v0) && _mm_test_all_zeros(v1, v1) && _mm_test_all_zeros(v2, v2);
+        return _mm_test_all_zeros(v0, v0) && _mm_test_all_zeros(v1, v1);
     }
 
     inline void my_hhash(const void *src, void *dst) {
 #ifdef USESHA3
-        SHA3_256((unsigned char*)dst, (const unsigned char*)src, 96);
+        SHA3_256((unsigned char*)dst, (const unsigned char*)src, 64);
 #else
-        sha256_update_shani((const unsigned char*)src, 96, (unsigned char*)dst);
+        sha256_update_shani((const unsigned char*)src, 64, (unsigned char*)dst);
+#endif
+    }
+
+    inline void my_hhash(const void *src, size_t size, void *dst) {
+#ifdef USESHA3
+        SHA3_256((unsigned char*)dst, (const unsigned char*)src, size);
+#else
+		sha256_update_shani((const unsigned char*)src, size, (unsigned char*)dst);
 #endif
     }
 }

@@ -94,12 +94,12 @@ namespace virgo_ext {
         for (int i = 0; i < (1 << (log_current_witness_size_per_slice - 1)); ++i) {
             __hhash_digest tmp_hash;
             memset(&tmp_hash, 0, sizeof(tmp_hash));
-            __hhash_digest data[2];
+            unsigned char data[2 * sizeof(fieldElement) + sizeof(__hhash_digest)];
             for (int j = 0; j < (1 << (log_leaf_size)); j += 2) {
                 memcpy(data, &witness_rs_codeword_interleaved[oracle_indicator][i << log_leaf_size | j],
                        2 * sizeof(fieldElement));
-                data[1] = tmp_hash;
-                my_hhash(data, &tmp_hash);
+				memcpy(data + 2 * sizeof(fieldElement), &tmp_hash, sizeof(__hhash_digest));
+                my_hhash(data, sizeof(data), &tmp_hash);
             }
             memset(data, 0, sizeof(__hhash_digest) * 2);
             fieldElement ele[2];
@@ -116,8 +116,8 @@ namespace virgo_ext {
                    (i + (1 << log_current_witness_size_per_slice) / 2) <
                    poly_commit::slice_count * poly_commit::slice_size);
             memcpy(data, ele, sizeof(fieldElement) * 2);
-            data[1] = tmp_hash;
-            my_hhash(data, &tmp_hash);
+			memcpy(data + 2 * sizeof(fieldElement), &tmp_hash, sizeof(__hhash_digest));
+			my_hhash(data, sizeof(data), &tmp_hash);
             leaf_hash[oracle_indicator][i] = tmp_hash;
         }
         merkle_tree::merkle_tree_prover::create_tree(leaf_hash[oracle_indicator],
@@ -388,7 +388,7 @@ namespace virgo_ext {
         hash_val = new __hhash_digest[nxt_witness_size / 2];
         memset(&htmp, 0, sizeof(__hhash_digest));
         for (int i = 0; i < nxt_witness_size / 2; ++i) {
-            __hhash_digest data[2];
+            unsigned char data[2 * sizeof(fieldElement) + sizeof(__hhash_digest)];
             fieldElement data_ele[2];
             memset(data, 0, 2 * sizeof(__hhash_digest));
             memset(&htmp, 0, sizeof(__hhash_digest));
@@ -396,17 +396,16 @@ namespace virgo_ext {
                 int c = (i) << log_leaf_size | (j << 1) | 0, d = (i) << log_leaf_size | (j << 1) | 1;
                 data_ele[0] = cpd.rs_codeword[current_step_no][c];
                 data_ele[1] = cpd.rs_codeword[current_step_no][d];
-                memcpy(&data[0], data_ele, 2 * sizeof(fieldElement));
-                data[1] = htmp;
-                my_hhash(data, &htmp);
+                memcpy(data, data_ele, 2 * sizeof(fieldElement));
+				memcpy(data + 2 * sizeof(fieldElement), &htmp, sizeof(__hhash_digest));
+                my_hhash(data, sizeof(data), &htmp);
             }
             int pos = cpd.rs_codeword_msk_mapping[current_step_no][i];
             data_ele[0] = cpd.rs_codeword_msk[current_step_no][pos];
             data_ele[1] = cpd.rs_codeword_msk[current_step_no][pos | 1];
-
-            memcpy(&data[0], data_ele, 2 * sizeof(fieldElement));
-            data[1] = htmp;
-            my_hhash(data, &htmp);
+			memcpy(data, data_ele, 2 * sizeof(fieldElement));
+			memcpy(data + 2 * sizeof(fieldElement), &htmp, sizeof(__hhash_digest));
+			my_hhash(data, sizeof(data), &htmp);
             hash_val[i] = htmp;
         }
         merkle_tree::merkle_tree_prover::create_tree(hash_val, nxt_witness_size / 2, cpd.merkle[current_step_no],
