@@ -34,14 +34,15 @@ namespace virgo_ext {
         memset(data, 0, sizeof data);
         assert(value.size() % 2 == 1);
         __hhash_digest value_h;
+		unsigned char _data[2 * sizeof(fieldElement) + sizeof(__hhash_digest)];
         memset(&value_h, 0, sizeof(__hhash_digest));
         for (int i = 0; i < value.size(); ++i) {
             fieldElement data_ele[2];
             data_ele[0] = value[i].first;
             data_ele[1] = value[i].second;
-            memcpy(&data[0], data_ele, 2 * sizeof(fieldElement));
-            data[1] = value_h;
-            my_hhash(data, &value_h);
+            memcpy(_data, data_ele, 2 * sizeof(fieldElement));
+			memcpy(_data + 2 * sizeof(fieldElement), &value_h, sizeof(__hhash_digest));
+            my_hhash(_data, sizeof(_data), &value_h);
         }
         return equals(h, cur_hhash) && equals(value_h, merkle_path[len - 1]);
     }
