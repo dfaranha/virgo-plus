@@ -337,7 +337,7 @@ int main(int argc, char **argv) {
 
 	fri::delete_self();
 
-	vector<F> all_sum(slice_number + 1);
+	F* all_sum = new F[slice_number + 1];
 	int log_length = 8;
 	auto all_pri_mask = vector<F>(1, F_ZERO);
 	auto all_pub_mask = vector<F>(1, F_ZERO);
@@ -350,17 +350,18 @@ int main(int argc, char **argv) {
 	}
 	auto merkle_root_l = prover.commit_private_array(private_array.data(), log_length, all_pri_mask);
 	auto inner_product_sum = prover.inner_prod(private_array.data(), public_array.data(), private_array.size());
-	auto merkle_root_h = prover.commit_public_array(all_pub_mask, public_array.data(), log_length, inner_product_sum, all_sum.data());
+	auto merkle_root_h = prover.commit_public_array(all_pub_mask, public_array.data(), log_length, inner_product_sum, all_sum);
 	
 	/* Verifier. */
 	int proof_size;
 	double v_time, p_time;
 	auto processed = public_array_prepare_generic(public_array.data(), log_length);
-	if (verifier.verify_poly_commitment(all_sum.data(), log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
+	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
 		cout << "Verification pass in the poly commitment!" << endl;
 	}
 
 	fri::delete_self();
+	delete all_sum;
     return 0;
 
 	auto d = fri::request_init_commit(8, 0);
