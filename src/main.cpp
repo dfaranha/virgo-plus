@@ -63,7 +63,7 @@ void test_field_arithmetic() {
 			assert(c == -1);
 		}
 	}
-	cout << "Field tests pass. " << endl;
+	std::cout << "Field tests pass. " << endl;
 	return;
 
 	fieldElement::self_speed_test_add(100);
@@ -320,9 +320,15 @@ helib::Ctxt gen_rnd_input(const helib::PubKey &pk){
 
 void test_HE_field_arithmetic(const helib::PubKey &pk) {
 	virgo_ext::fieldElement a, b, c, d, e;
+
+  auto rnd_ct = gen_rnd_input(pk);
+	a = fieldElement(rnd_ct);
+  a.print(stdout);
+
 	for (int i = 0; i < 1000; i++) {
     auto rnd_ct = gen_rnd_input(pk);
 		a = fieldElement(rnd_ct);
+    assert(!a.elem[0].cleartext);
 		b = fieldElement::random();
 		d = 0;
 
@@ -359,7 +365,7 @@ void test_HE_field_arithmetic(const helib::PubKey &pk) {
 		assert(d == e);
 		assert(d != a);
 	}
-	cout << "Field tests pass. " << endl;
+	std::cout << "Field tests pass. " << endl;
 	return;
 }
 
@@ -411,7 +417,7 @@ void he_test(){
 	double v_time, p_time;
 	auto processed = public_array_prepare_generic(public_array.data(), log_length);
 	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
-		cout << "Verification pass in the poly commitment!" << endl;
+		std::cout << "Verification pass in the poly commitment!" << endl;
 	}
 
 	fri::delete_self();
@@ -468,7 +474,7 @@ int main(int argc, char **argv) {
 	double v_time, p_time;
 	auto processed = public_array_prepare_generic(public_array.data(), log_length);
 	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
-		cout << "Verification pass in the poly commitment!" << endl;
+		std::cout << "Verification pass in the poly commitment!" << endl;
 	}
 
 	fri::delete_self();

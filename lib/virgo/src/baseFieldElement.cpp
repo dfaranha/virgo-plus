@@ -54,7 +54,7 @@ namespace virgo_ext {
 
 	baseFieldElement::baseFieldElement(helib::Ctxt &x) {
 		cleartext = false;
-		elemHE[0] = &x;
+		elemHE[0] = new helib::Ctxt(x);
 		elemHE[1] = new helib::Ctxt(helib::ZeroCtxtLike, x);
 		elem[0] = elem[1] = 0;
 	}
@@ -349,7 +349,21 @@ namespace virgo_ext {
 	}
 
 	void baseFieldElement::print(FILE *fileno) const {
-		fprintf(fileno, "(%llu, %llu)\n", elem[0], elem[1]);
+		if(!cleartext){
+			helib::Ptxt<helib::BGV> pa0(sk->getContext());
+			helib::Ptxt<helib::BGV> pa1(sk->getContext());
+			sk->Decrypt(pa0, *(elemHE[0]));
+			sk->Decrypt(pa1, *(elemHE[1]));
+			for (size_t i = 0; i < pa0.size(); i++){
+				uint64_t x0 = 0, x1 = 0;
+        if(NTL::deg(pa0[i].getData()) == 0) NTL::conv(x0, pa0[i].getData()[0]);
+        if(NTL::deg(pa1[i].getData()) == 0) NTL::conv(x1, pa1[i].getData()[0]);
+				fprintf(fileno, "(%llu, %llu)\n", x0, x1);
+			}
+			fprintf(fileno, "\n");
+		}else{
+			fprintf(fileno, "(%llu, %llu)\n", elem[0], elem[1]);
+		}
 	}
 	
 	baseFieldElement baseFieldElement::maxWithZero(const baseFieldElement & a,

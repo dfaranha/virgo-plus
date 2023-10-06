@@ -259,6 +259,12 @@ namespace virgo_ext {
                                      inv_mu;
 
                         if (p_val != beta.first[j].first && p_val != beta.first[j].second) {
+                            printf("p_val: \n");
+                            p_val.print(stdout);
+                            printf("first: \n");
+                            beta.first[j].first.print(stdout);
+                            printf("second: \n");
+                            beta.first[j].second.print(stdout);
                             fprintf(stderr, "Fri check consistency first round fail\n");
                             return false;
                         }
