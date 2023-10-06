@@ -308,7 +308,118 @@ void debug_print_circuit(layeredCircuit &c){
   }
 }
 
+helib::Ctxt gen_rnd_input(const helib::PubKey &pk){
+  helib::Ptxt<helib::BGV> ptxt(pk);
+  for (size_t i = 0; i < ptxt.size(); i++){
+    ptxt[i] = baseFieldElement::randomNumber();
+  }
+  helib::Ctxt ctxt(pk);
+  pk.Encrypt(ctxt, ptxt);
+  return ctxt;
+}
+
+void test_HE_field_arithmetic(const helib::PubKey &pk) {
+	virgo_ext::fieldElement a, b, c, d, e;
+	for (int i = 0; i < 1000; i++) {
+    auto rnd_ct = gen_rnd_input(pk);
+		a = fieldElement(rnd_ct);
+		b = fieldElement::random();
+		d = 0;
+
+		c = a + b;
+		d = b + a;
+    baseFieldElement::verifier_mode = true;
+		assert(c == d);
+
+
+		c = fieldElement::random();
+		d = (a + b) + c;
+		e = a + (b + c);
+		assert(d == e);
+		assert(d != a);
+
+    rnd_ct = gen_rnd_input(pk);
+    auto x = baseFieldElement(rnd_ct);
+		auto y = baseFieldElement(-3, 1);
+		auto z = x.mulNor();
+		assert(x * y == z);
+
+		c = a * b;
+		d = b * a;
+		assert(c == d);
+
+		c = fieldElement::random();
+		d = (a * b) + (a * c);
+		e = a * (b + c);
+		assert(d == e);
+
+		c = fieldElement::random();
+		d = (a * b) * c;
+		e = a * (b * c);
+		assert(d == e);
+		assert(d != a);
+	}
+	cout << "Field tests pass. " << endl;
+	return;
+}
+
+
+void he_test(){
+  // he setup
+  const uint64_t p = 9007182074871809ULL;
+  helib::Context context = helib::ContextBuilder<helib::BGV>()
+                          .m(128).p(p).r(1).bits(650).c(2).build();
+
+  helib::SecKey sk(context);
+  sk.GenSecKey();
+  helib::addSome1DMatrices(sk);
+  const helib::PubKey& pk = sk;
+
+  // fri setup
+  F::init(p, 0x3afb671c0f514);
+  baseFieldElement::sk = &sk;
+
+  test_HE_field_arithmetic(pk);
+
+  poly_commit::poly_commit_prover prover;
+	poly_commit::poly_commit_verifier verifier;
+	verifier.p = &prover;
+
+	fri::delete_self();
+
+  F *all_sum = new F[slice_number + 1];
+	int log_length = 7;
+	auto all_pri_mask = vector<F>(1, F_ZERO);
+	auto all_pub_mask = vector<F>(1, F_ZERO);
+
+	/* Prover. */
+  baseFieldElement::verifier_mode = false;
+	vector<F> public_array(1 << log_length), private_array(1 << log_length);
+	for (int i = 0; i < (1 << log_length); i++) {
+    auto rnd_ct = gen_rnd_input(pk);
+		private_array[i] = fieldElement(rnd_ct);
+		// private_array[i] = fieldElement::random();
+		public_array[i] = fieldElement::random();
+	}
+	auto merkle_root_l = prover.commit_private_array(private_array.data(), log_length, all_pri_mask);
+	auto inner_product_sum = prover.inner_prod(private_array.data(), public_array.data(), private_array.size());
+	auto merkle_root_h = prover.commit_public_array(all_pub_mask, public_array.data(), log_length, inner_product_sum, all_sum);
+	
+	/* Verifier. */
+  baseFieldElement::verifier_mode = true;
+	int proof_size;
+	double v_time, p_time;
+	auto processed = public_array_prepare_generic(public_array.data(), log_length);
+	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
+		cout << "Verification pass in the poly commitment!" << endl;
+	}
+
+	fri::delete_self();
+  return;
+}
+
 int main(int argc, char **argv) {
+  he_test(); return 0;
 	layeredCircuit c;
 	vector<DAG_gate *> in_circuit_dag;
 	F::init(PRIME, ROOT);
@@ -338,7 +449,7 @@ int main(int argc, char **argv) {
 	fri::delete_self();
 
 	F *all_sum = new F[slice_number + 1];
-	int log_length = 8;
+	int log_length = 7;
 	auto all_pri_mask = vector<F>(1, F_ZERO);
 	auto all_pub_mask = vector<F>(1, F_ZERO);
 

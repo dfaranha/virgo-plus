@@ -36,13 +36,11 @@ namespace virgo_ext {
 			elemHE[0]->parts[1].writeTo(tmp);
 			elemHE[1]->parts[0].writeTo(tmp);
 			elemHE[1]->parts[1].writeTo(tmp);
-			const size_t sz = tmp.gcount();
-			char tmp2[sz];
-			tmp.read(tmp2, sz);
-			my_hhash(tmp2, sz, buffer);
+			auto str = tmp.str();
+			const size_t sz = str.length();
+			my_hhash(str.data(), sz, buffer);
 		}
 	}
-
 	
 	baseFieldElement::baseFieldElement(const baseFieldElement & b) {
 		elem[0] = b.elem[0];
@@ -364,6 +362,7 @@ namespace virgo_ext {
 
 	baseFieldElement baseFieldElement::maxUnsigned(const baseFieldElement & a,
 			const baseFieldElement & b) {
+		assert(a.cleartext && b.cleartext);
 		return a < b ? b : a;
 	}
 
@@ -502,6 +501,19 @@ namespace virgo_ext {
 		baseFieldElement ret;
 		ret.elem[0] = lo;
 		ret.elem[1] = hi;
+		if(!cleartext){
+			helib::Ctxt tmp(*(elemHE[1])); // tmp = elem[1]
+			tmp.negate(); // tmp = (mod - elem[1])
+			ret.elemHE[1] = new helib::Ctxt(tmp);
+			ret.elemHE[1]->multByConstant(3l); // 3*(mod - elem[1])
+			ret.elemHE[1]->addCtxt(*(elemHE[0])); // elem[0] + 3*(mod - elem[1])
+
+			ret.elemHE[0] = new helib::Ctxt(*(elemHE[0]));
+			ret.elemHE[0]->negate(); // (mod - elem[0])
+			ret.elemHE[0]->addCtxt(tmp); // (mod - elem[0]) + (mod - elem[1]);
+			ret.elemHE[0]->multByConstant(3l); // 3*((mod - elem[0]) + (mod - elem[1]));
+			ret.cleartext = false;
+		}
 		return ret;
 	}
 }

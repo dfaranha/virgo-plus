@@ -67,18 +67,18 @@ namespace virgo_ext {
 											fieldElement::getRootOfUnity(mylog(slice_size)),
 											&l_eval[(i * slice_size)]);
 				} else {
-					bool all_zero = true;
-					auto zero = fieldElement::zero();
-					for (int j = 0; j < slice_real_ele_cnt; ++j) {
-						if (private_array[i * slice_real_ele_cnt + j] == zero)
-							continue;
-						all_zero = false;
-						break;
-					}
-					if (all_zero) {
-						for (int j = 0; j < slice_size; ++j)
-							l_eval[i * slice_size + j] = zero;
-					} else {
+					// bool all_zero = true;
+					// auto zero = fieldElement::zero();
+					// for (int j = 0; j < slice_real_ele_cnt; ++j) {
+					// 	if (private_array[i * slice_real_ele_cnt + j] == zero)
+					// 		continue;
+					// 	all_zero = false;
+					// 	break;
+					// }
+					// if (all_zero) {
+					// 	for (int j = 0; j < slice_size; ++j)
+					// 		l_eval[i * slice_size + j] = zero;
+					// } else {
 						inverse_fast_fourier_transform(&private_array[i * slice_real_ele_cnt], slice_real_ele_cnt,
 														slice_real_ele_cnt,
 														fieldElement::getRootOfUnity(mylog(slice_real_ele_cnt)),
@@ -86,7 +86,7 @@ namespace virgo_ext {
 						fast_fourier_transform(tmp, slice_real_ele_cnt, slice_size,
 												fieldElement::getRootOfUnity(mylog(slice_size)),
 												&l_eval[i * slice_size]);
-					}
+					// }
 				}
 			}
 
@@ -241,23 +241,23 @@ namespace virgo_ext {
 					all_sum[i] = (lq_coef[0] + h_coef[0]) * fieldElement(slice_size / mask_position_gap);
 				} else {
 					assert(2 * slice_real_ele_cnt <= slice_size);
-					bool all_zero = true;
-					auto zero = fieldElement(0);
+					// bool all_zero = true;
+					// auto zero = fieldElement(0);
 					for (int j = 0; j < 2 * slice_real_ele_cnt; ++j) {
 						lq_eval[j] = l_eval[i * slice_size + j * (slice_size / (2 * slice_real_ele_cnt))] *
 										q_eval[i * slice_size + j * (slice_size / (2 * slice_real_ele_cnt))];
-						if (lq_eval[j] != zero) {
-							all_zero = false;
-						}
+						// if (lq_eval[j] != zero) {
+						// 	all_zero = false;
+						// }
 					}
-					if (all_zero) {
-						for (int j = 0; j < 2 * slice_real_ele_cnt; ++j)
-							lq_coef[j] = zero;
-						for (int j = 0; j < slice_real_ele_cnt; ++j)
-							h_coef[j] = zero;
-						for (int j = 0; j < slice_size; ++j)
-							h_eval[j] = zero;
-					} else {
+					// if (all_zero) {
+					// 	for (int j = 0; j < 2 * slice_real_ele_cnt; ++j)
+					// 		lq_coef[j] = zero;
+					// 	for (int j = 0; j < slice_real_ele_cnt; ++j)
+					// 		h_coef[j] = zero;
+					// 	for (int j = 0; j < slice_size; ++j)
+					// 		h_eval[j] = zero;
+					// } else {
 						fft_t0 = std::chrono::high_resolution_clock::now();
 						inverse_fast_fourier_transform(lq_eval, 2 * slice_real_ele_cnt, 2 * slice_real_ele_cnt,
 														fieldElement::getRootOfUnity(mylog(2 * slice_real_ele_cnt)),
@@ -269,7 +269,7 @@ namespace virgo_ext {
 						fft_t1 = std::chrono::high_resolution_clock::now();
 						fft_time += std::chrono::duration_cast<std::chrono::duration<double>>(
 								fft_t1 - fft_t0).count();
-					}
+					// }
 					auto rou = fieldElement::getRootOfUnity(mylog(slice_size));
 					auto inv_rou = rou.inv();
 					auto rou_n = fieldElement::fastPow(rou, slice_real_ele_cnt);
