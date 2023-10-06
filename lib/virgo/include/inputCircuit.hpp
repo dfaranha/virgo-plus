@@ -2,8 +2,8 @@
 // Created by 69029 on 7/19/2021.
 //
 
-#ifndef VIRGO_PLUS_INPUTCIRCUIT_HPP
-#define VIRGO_PLUS_INPUTCIRCUIT_HPP
+#pragma once
+
 #include <bits/stdc++.h>
 using std::pair;
 using std::vector;
@@ -22,4 +22,3 @@ public:
     gateType ty;
 };
 
-#endif //VIRGO_PLUS_INPUTCIRCUIT_HPP

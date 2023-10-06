@@ -1,5 +1,5 @@
-#ifndef __fri
-#define __fri
+#pragma once
+
 #include "merkle_tree.h"
 #include <utility>
 #include "fieldElement.hpp"
@@ -104,4 +104,3 @@ namespace virgo_ext {
         void public_array_init(fieldElement *r, int len_r);
     }
 }
-#endif

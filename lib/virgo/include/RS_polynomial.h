@@ -1,5 +1,4 @@
-#ifndef __RS_polynomial
-#define __RS_polynomial
+#pragma once
 
 #include "my_hhash.h"
 #include "merkle_tree.h"
@@ -19,4 +18,3 @@ namespace virgo_ext {
     void inverse_fast_fourier_transform(fieldElement *evaluations, int coef_len, int order, fieldElement root_of_unity,
                                         fieldElement *result);
 }
-#endif

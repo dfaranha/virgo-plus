@@ -2,8 +2,7 @@
 // Created by 69029 on 3/25/2021.
 //
 
-#ifndef ZKCNN_TIMER_HPP
-#define ZKCNN_TIMER_HPP
+#pragma once
 
 #include <chrono>
 #include <assert.h>
@@ -24,5 +23,3 @@ private:
     bool status;
 };
 
-
-#endif //ZKCNN_TIMER_HPP

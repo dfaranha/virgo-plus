@@ -2,8 +2,8 @@
 // Created by 69029 on 6/25/2021.
 //
 
-#ifndef UNLAYERED_LIBRA_CONFIG_PC_HPP
-#define UNLAYERED_LIBRA_CONFIG_PC_HPP
+#pragma once
+
 #define USE_VIRGO
 
 #ifdef USE_VIRGO
@@ -27,4 +27,4 @@
 #define F_ZERO  hyrax_p224::fieldElement::zero()
 #endif
 
-#endif //UNLAYERED_LIBRA_CONFIG_PC_HPP
+

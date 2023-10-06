@@ -1,5 +1,5 @@
-#ifndef __merkle_tree
-#define __merkle_tree
+#pragma once
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,5 +23,3 @@ namespace virgo_ext {
         }
     }
 }
-
-#endif

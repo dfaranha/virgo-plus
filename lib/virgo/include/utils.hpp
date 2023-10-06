@@ -2,8 +2,8 @@
 // Created by 69029 on 6/23/2021.
 //
 
-#ifndef UNLAYERED_LIBRA_UTILS_HPP
-#define UNLAYERED_LIBRA_UTILS_HPP
+#pragma once
+
 
 #include "config_pc.hpp"
 
@@ -23,4 +23,3 @@ template <class T>
 void myResize(vector<T> &vec, u64 sz) {
     if (vec.size() < sz) vec.resize(sz);
 }
-#endif //UNLAYERED_LIBRA_UTILS_HPP

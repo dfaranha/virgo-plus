@@ -1,5 +1,5 @@
-#ifndef __hhash
-#define __hhash
+#pragma once
+
 
 /**extra 'h' before hhash can avoid some strange error by the compiler*/
 
@@ -40,4 +40,3 @@ namespace virgo_ext {
 #endif
     }
 }
-#endif
