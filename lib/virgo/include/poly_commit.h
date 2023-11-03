@@ -10,6 +10,7 @@
 using namespace std;
 
 namespace virgo_ext {
+		extern uint64_t __glb_c1, __glb_c2, __glb_c3, __glb_c4, __glb_c5;
     namespace poly_commit {
         extern fieldElement *all_pri_msk_arr;
         extern fieldElement *all_pub_msk_arr;

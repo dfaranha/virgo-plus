@@ -28,6 +28,7 @@ namespace virgo_ext {
 		fieldElement(baseFieldElement x);
 
 		void hash(void * buffer);
+		void decrypt();
 
         fieldElement operator+(const fieldElement &other) const;
 

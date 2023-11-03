@@ -15,6 +15,8 @@ using std::vector;
 using std::ostream;
 
 namespace virgo_ext {
+
+    enum element_type { cleartext, ciphertext, packed_cleartext };
     class baseFieldElementPacked;
 
     class baseFieldElement {
@@ -72,6 +74,7 @@ namespace virgo_ext {
         void setInv();
 
         void hash(void * buffer);
+        void decrypt();
 
         void print(::FILE *fileno) const;
         char *toString() const;
@@ -101,7 +104,8 @@ namespace virgo_ext {
         helib::Ctxt * elemHE[2];
         helib::Ptxt<helib::BGV> * elemCT[2];
 
-        bool cleartext = true;
+        uint8_t he_hash[32];
+        element_type type = cleartext;
         void check_verifier_mode(const baseFieldElement & other) const;
 
         static double self_speed_test_mult(int repeat);
@@ -110,6 +114,7 @@ namespace virgo_ext {
         static helib::SecKey * sk;
         static unsigned long long randomNumber();
 
+        static uint64_t num_of_decryptions;
     protected:
         static unsigned long long myMod(unsigned long long x);
         static unsigned long long mymult(const unsigned long long x, const unsigned long long y);

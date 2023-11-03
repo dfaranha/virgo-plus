@@ -10,8 +10,8 @@
 using namespace std;
 // #define __DEBUG_HE_CHECK
 #ifdef __DEBUG_HE_CHECK
-	#define __DEBUG_CHECK if(!cleartext) __debug_check_mirror(elem, elemHE, sk);
-	#define __DEBUG_CHECK_OTHER(x) if(!x.cleartext) __debug_check_mirror(x.elem, x.elemHE, sk);
+	#define __DEBUG_CHECK if(type != cleartext) __debug_check_mirror(elem, elemHE, sk);
+	#define __DEBUG_CHECK_OTHER(x) if(x.type != cleartext) __debug_check_mirror(x.elem, x.elemHE, sk);
 #else
 	#define __DEBUG_CHECK
 	#define __DEBUG_CHECK_OTHER(x)
@@ -21,6 +21,7 @@ namespace virgo_ext {
 	unsigned long long baseFieldElement::mod = 0;
 	unsigned long long baseFieldElement::rou = 0;
 	unsigned long long baseFieldElement::rcp = 0;
+	uint64_t baseFieldElement::num_of_decryptions = 0;
 	unsigned int baseFieldElement::len = 0;
 	unsigned int baseFieldElement::__max_order = 0;
 	bool baseFieldElement::initialized = false;
@@ -36,9 +37,12 @@ namespace virgo_ext {
 	}
 
 	baseFieldElement::~baseFieldElement() {
-		if(!cleartext){
+		if(type == ciphertext){
 			delete elemHE[0];
 			delete elemHE[1];
+		}else if(type == packed_cleartext){
+			delete elemCT[0];
+			delete elemCT[1];
 		}
 	}
 
@@ -67,32 +71,39 @@ namespace virgo_ext {
 	}
 
   void baseFieldElement::hash(void * buffer){
-		if(cleartext){
+		if(type == cleartext){
 			my_hhash(elem, sizeof(elem), buffer);
-		}else{
+		}else if(type == ciphertext){
 			std::stringstream tmp;
 			elemHE[0]->parts[0].writeTo(tmp);
 			elemHE[0]->parts[1].writeTo(tmp);
-			elemHE[1]->parts[0].writeTo(tmp);
-			elemHE[1]->parts[1].writeTo(tmp);
+			// elemHE[1] is sometimes a trivial encryption of 0, skip it
+			if(elemHE[1]->parts.size() > 0)	elemHE[1]->parts[0].writeTo(tmp);
+			if(elemHE[1]->parts.size() > 1)	elemHE[1]->parts[1].writeTo(tmp);
 			auto str = tmp.str();
 			const size_t sz = str.length();
 			my_hhash(str.data(), sz, buffer);
+		}else if(type == packed_cleartext){
+			memcpy(buffer, he_hash, 32);
 		}
 	}
 	
 	baseFieldElement::baseFieldElement(const baseFieldElement & b) {
 		elem[0] = b.elem[0];
 		elem[1] = b.elem[1];
-		if(!b.cleartext){
+		if(b.type == ciphertext){
 			elemHE[0] = new helib::Ctxt(*(b.elemHE[0]));
 			elemHE[1] = new helib::Ctxt(*(b.elemHE[1]));
+		}else if(b.type == packed_cleartext){
+			elemCT[0] = new helib::Ptxt<helib::BGV>(*(b.elemCT[0]));
+			elemCT[1] = new helib::Ptxt<helib::BGV>(*(b.elemCT[1]));
+			memcpy(he_hash, b.he_hash, 32);
 		}
-		cleartext = b.cleartext;
+		type = b.type;
 	}
 
 	baseFieldElement::baseFieldElement(helib::Ctxt &x) {
-		cleartext = false;
+		type = ciphertext;
 		elemHE[0] = new helib::Ctxt(x);
 		elemHE[1] = new helib::Ctxt(helib::ZeroCtxtLike, x);
 		elem[0] = elem[1] = 0;
@@ -122,16 +133,26 @@ namespace virgo_ext {
 			if (mod <= ret.elem[i])
 				ret.elem[i] = ret.elem[i] - mod;
 		}
-		if(!(cleartext && other.cleartext)){
-			ret.cleartext = false;
-			auto a = cleartext ? &other : &(*this);
-			auto b = !cleartext ? &other : &(*this);
+		if(type == ciphertext || other.type == ciphertext){
+			ret.type = ciphertext;
+			auto a = type != ciphertext ? &other : &(*this);
+			auto b = type == ciphertext ? &other : &(*this);
 			for (size_t i = 0; i < 2; i++){
 				ret.elemHE[i] = new helib::Ctxt(*(a->elemHE[i]));
-				if(b->cleartext) ret.elemHE[i]->addConstant((long) b->elem[i]);
-				else ret.elemHE[i]->addCtxt(*(b->elemHE[i]));
+				if(b->type == cleartext) ret.elemHE[i]->addConstant((long) b->elem[i]);
+				else if(b->type == ciphertext) ret.elemHE[i]->addCtxt(*(b->elemHE[i]));
+				else ret.elemHE[i]->addConstant(*(b->elemCT[i]));
 			}
 			__DEBUG_CHECK_OTHER(ret);
+		}else if(type == packed_cleartext || other.type == packed_cleartext){
+			ret.type = packed_cleartext;
+			auto a = type != packed_cleartext ? &other : &(*this);
+			auto b = type == packed_cleartext ? &other : &(*this);
+			for (size_t i = 0; i < 2; i++){
+				ret.elemCT[i] = new helib::Ptxt<helib::BGV>(*(a->elemCT[i]));
+				if(b->type == cleartext) ret.elemCT[i]->addConstant((long) b->elem[i]);
+				else ret.elemCT[i]->addConstant(*(b->elemCT[i]));
+			}
 		}
 		return ret;
 	}
@@ -148,17 +169,28 @@ namespace virgo_ext {
 			if (ret.elem[i] >= mod)
 				ret.elem[i] -= mod;
 		}
-		if(!(cleartext && other.cleartext)){
-			ret.cleartext = false;
-			auto a = cleartext ? &other : &(*this);
-			auto b = !cleartext ? &other : &(*this);
+		if(type == ciphertext || other.type == ciphertext){
+			ret.type = ciphertext;
+			auto a = type != ciphertext ? &other : &(*this);
+			auto b = type == ciphertext ? &other : &(*this);
 			for (size_t i = 0; i < 2; i++){
 				ret.elemHE[i] = new helib::Ctxt(*(a->elemHE[i]));
-				if(b->cleartext) ret.elemHE[i]->addConstant((long) b->elem[i], true);
-				else ret.elemHE[i]->addCtxt(*(b->elemHE[i]), true);
-				if(cleartext) ret.elemHE[i]->negate();
+				if(b->type == cleartext) ret.elemHE[i]->addConstant((long) b->elem[i], true);
+				else if(b->type == ciphertext) ret.elemHE[i]->addCtxt(*(b->elemHE[i]), true);
+				else ret.elemHE[i]->addConstant(*(b->elemCT[i]), true);
+				if(type == cleartext) ret.elemHE[i]->negate();
 			}
 			__DEBUG_CHECK_OTHER(ret);
+		}else if(type == packed_cleartext || other.type == packed_cleartext){
+			ret.type = packed_cleartext;
+			auto a = type != packed_cleartext ? &other : &(*this);
+			auto b = type == packed_cleartext ? &other : &(*this);
+			for (size_t i = 0; i < 2; i++){
+				ret.elemCT[i] = new helib::Ptxt<helib::BGV>(*(a->elemCT[i]));
+				if(b->type == cleartext) *(ret.elemCT[i]) -= (long) b->elem[i];
+				else *(ret.elemCT[i]) -= *(b->elemCT[i]);
+				if(type == cleartext) ret.elemCT[i]->negate();
+			}
 		}
 		return ret;
 	}
@@ -191,12 +223,12 @@ namespace virgo_ext {
 			t1 -= mod;
 		ret.elem[1] = t1;
 
-		if(!(cleartext && other.cleartext)){
-			ret.cleartext = false;
-			auto a = cleartext ? &other : &(*this);
-			auto b = !cleartext ? &other : &(*this);
+		if(type == ciphertext || other.type == ciphertext){
+			ret.type = ciphertext;
+			auto a = type != ciphertext ? &other : &(*this);
+			auto b = type == ciphertext ? &other : &(*this);
 			assert(mod == a->elemHE[0]->getPtxtSpace());
-			if(!b->cleartext){
+			if(b->type != cleartext){
 				throw std::invalid_argument("Multiplications between ciphertexts should not occur");
 			}
 			auto tb = b->elem[0] + b->elem[1];
@@ -223,6 +255,38 @@ namespace virgo_ext {
 
 			ret.elemHE[0]->addCtxt(tmp); // // ret[0] = ac - 3*bd
 			__DEBUG_CHECK_OTHER(ret);
+		}else if(type == packed_cleartext || other.type == packed_cleartext){
+			ret.type = packed_cleartext;
+			auto a = type != packed_cleartext ? &other : &(*this);
+			auto b = type == packed_cleartext ? &other : &(*this);
+			auto &context = a->elemCT[0]->getContext();
+			assert(mod == context.getP());
+			if(b->type != cleartext){
+				throw std::invalid_argument("Multiplications between packed_cleartext should not occur");
+			}
+			auto tb = b->elem[0] + b->elem[1];
+			if (tb >= mod) tb -= mod;
+			auto tmp = helib::Ptxt<helib::BGV>(*(a->elemCT[0])); // tmp = a[0]
+			tmp.addConstant(*(a->elemCT[1])); // tmp = ta
+			tmp *= ((int64_t) tb); // tmp = all_prod = ta*tb
+			ret.elemCT[1] = new helib::Ptxt<helib::BGV>(tmp); // ret[1] = all_prod
+
+			tmp = *(a->elemCT[0]);
+			tmp *= ((int64_t) b->elem[0]); // tmp = ac
+			ret.elemCT[0] = new helib::Ptxt<helib::BGV>(tmp);  // ret[0] = ac
+
+			tmp.negate();
+			ret.elemCT[1]->addConstant(tmp); // ret[1] = all_prod - ac
+
+			tmp = *(a->elemCT[1]);
+			tmp *= ((int64_t) b->elem[1]); // tmp = bd
+			tmp.negate(); // tmp = - bd
+
+			ret.elemCT[1]->addConstant(tmp); // ret[1] = all_prod - ac - bd
+
+			tmp *= 3l;// tmp = - 3bd
+
+			ret.elemCT[0]->addConstant(tmp); // // ret[0] = ac - 3*bd
 		}
 		return ret;
 	}
@@ -263,27 +327,44 @@ namespace virgo_ext {
 	}
 
 	void baseFieldElement::check_verifier_mode(const baseFieldElement & other) const {
-		if(cleartext && other.cleartext) return; // both are cleartext
+		if(type == cleartext && other.type == cleartext) return; // both are cleartext
 		if(!verifier_mode) throw std::logic_error("Prover cannot perform comparisons on ciphertexts");
-		if(cleartext || other.cleartext) throw std::logic_error("Connot compare cleartext with ciphertext");
+		if(type == cleartext || other.type == cleartext) throw std::logic_error("Connot compare cleartext with ciphertext");
+	}
+
+	void baseFieldElement::decrypt(){
+		num_of_decryptions += 2;
+		if(type == cleartext || type == packed_cleartext) return;
+		if(!verifier_mode) throw std::logic_error("Prover cannot decrypt");
+		hash(he_hash);
+		elemCT[0] = new helib::Ptxt<helib::BGV>(sk->getContext());
+		elemCT[1] = new helib::Ptxt<helib::BGV>(sk->getContext());
+		sk->Decrypt((*(elemCT[0])), *(elemHE[0]));
+		sk->Decrypt((*(elemCT[1])), *(elemHE[1]));
+		delete elemHE[0];
+		delete elemHE[1];
+		type = packed_cleartext;
 	}
 
 	bool baseFieldElement::operator!=(const baseFieldElement & other) const {
 		check_verifier_mode(other);
-		if(cleartext && other.cleartext){
+		if(type == cleartext && other.type == cleartext){
 			return elem[0] != other.elem[0] || elem[1] != other.elem[1];
 		}
-		auto a = cleartext ? &other : &(*this);
-		auto b = !cleartext ? &other : &(*this);
-		helib::Ptxt<helib::BGV> pa0(sk->getContext());
-		helib::Ptxt<helib::BGV> pa1(sk->getContext());
-		helib::Ptxt<helib::BGV> pb0(sk->getContext());
-		helib::Ptxt<helib::BGV> pb1(sk->getContext());
-		sk->Decrypt(pa0, *(a->elemHE[0]));
-		sk->Decrypt(pa1, *(a->elemHE[1]));
-		sk->Decrypt(pb0, *(b->elemHE[0]));
-		sk->Decrypt(pb1, *(b->elemHE[1]));
-		return pa0 != pb0 || pa1 != pb1;
+		// auto a = cleartext ? &other : &(*this);
+		// auto b = !cleartext ? &other : &(*this);
+		// helib::Ptxt<helib::BGV> pa0(sk->getContext());
+		// helib::Ptxt<helib::BGV> pa1(sk->getContext());
+		// helib::Ptxt<helib::BGV> pb0(sk->getContext());
+		// helib::Ptxt<helib::BGV> pb1(sk->getContext());
+		// sk->Decrypt(pa0, *(a->elemHE[0]));
+		// sk->Decrypt(pa1, *(a->elemHE[1]));
+		// sk->Decrypt(pb0, *(b->elemHE[0]));
+		// sk->Decrypt(pb1, *(b->elemHE[1]));
+		if(type == ciphertext || other.type == ciphertext){
+			throw std::logic_error("Trying to compare ciphertexts");
+		}
+		return *(elemCT[0]) != *(other.elemCT[0]) || *(elemCT[1]) != *(other.elemCT[1]);
 	}
 	
 	bool baseFieldElement::operator==(const baseFieldElement & other) const {
@@ -291,20 +372,39 @@ namespace virgo_ext {
 	}
 	
 	baseFieldElement & baseFieldElement::operator=(const baseFieldElement & other) {
+		if(&other == this) return *this;
 		elem[0] = other.elem[0];
 		elem[1] = other.elem[1];
-		if(!cleartext && !other.cleartext){
+		if(type == ciphertext && other.type == ciphertext){
 			*(elemHE[0]) = *(other.elemHE[0]);
 			*(elemHE[1]) = *(other.elemHE[1]);
-		}else if(!other.cleartext){
+		}else if(type == packed_cleartext && other.type == packed_cleartext){
+			*(elemCT[0]) = *(other.elemCT[0]);
+			*(elemCT[1]) = *(other.elemCT[1]);
+			memcpy(he_hash, other.he_hash, 32);
+		}else if (other.type == ciphertext){
 			elemHE[0] = new helib::Ctxt(*(other.elemHE[0]));
 			elemHE[1] = new helib::Ctxt(*(other.elemHE[1]));
-			cleartext = false;
-		}else if(!cleartext){
+			if(type != cleartext){
+				delete elemCT[0];
+				delete elemCT[1];
+			}
+		}else if (other.type == packed_cleartext){
+			elemCT[0] = new helib::Ptxt<helib::BGV>(*(other.elemCT[0]));
+			elemCT[1] = new helib::Ptxt<helib::BGV>(*(other.elemCT[1]));
+			if(type != cleartext){
+				delete elemHE[0];
+				delete elemHE[1];
+			}
+			memcpy(he_hash, other.he_hash, 32);
+		}else if(type == ciphertext){
 			delete elemHE[0];
 			delete elemHE[1];
-			cleartext = true;
+		}else if(type == packed_cleartext){
+			delete elemCT[0];
+			delete elemCT[1];
 		}
+		type = other.type;
 		__DEBUG_CHECK_OTHER(other);
 		__DEBUG_CHECK;
 		return *this;
@@ -326,34 +426,34 @@ namespace virgo_ext {
 	}
 
 	baseFieldElement::operator  bool () const {
-		assert(cleartext);
+		assert(type == cleartext);
 		return elem[0] || elem[1];
 	}
 	
 	bool baseFieldElement::isNegative() const {
-		assert(cleartext);
+		assert(type == cleartext);
 		return (elem[0] > (mod >> 1)) && (elem[1] == 0);
 	}
 	
 	unsigned char baseFieldElement::getBit(unsigned int i) const {
-		assert(cleartext);
+		assert(type == cleartext);
 		assert(elem[1] == 0);
 		return (elem[0] >> i) & 1;
 	}
 	
 	bool baseFieldElement::operator<(const baseFieldElement & other) const {
-		assert(cleartext);
+		assert(type == cleartext);
 		assert(elem[1] == 0);
 		return elem[0] < other.elem[0];
 	}
 	
 	bool baseFieldElement::isZero() {
-		assert(cleartext);
+		assert(type == cleartext);
 		return !elem[0] && !elem[1];
 	}
 
 	baseFieldElement baseFieldElement::abs() const {
-		assert(cleartext);
+		assert(type == cleartext);
 		assert(elem[1] == 0);
 		baseFieldElement res = -*this;
 		 return res.elem[0] < this->elem[0] ? res : elem[0];
@@ -364,7 +464,7 @@ namespace virgo_ext {
 	}
 	
 	baseFieldElement baseFieldElement::inv() const {
-		assert(cleartext);
+		assert(type == cleartext);
 		baseFieldElement ret;
 		auto t0 = mymult(elem[0], elem[0]);
 		auto t1 = mymult(elem[1], elem[1]);
@@ -400,7 +500,7 @@ namespace virgo_ext {
 	}
 
 	void baseFieldElement::print(FILE *fileno) const {
-		if(!cleartext){
+		if(type == ciphertext){
 			helib::Ptxt<helib::BGV> pa0(sk->getContext());
 			helib::Ptxt<helib::BGV> pa1(sk->getContext());
 			sk->Decrypt(pa0, *(elemHE[0]));
@@ -415,6 +515,7 @@ namespace virgo_ext {
 		}else{
 			fprintf(fileno, "(%llu, %llu)\n", elem[0], elem[1]);
 		}
+		// TODO: print packed cleartext
 	}
 	
 	baseFieldElement baseFieldElement::maxWithZero(const baseFieldElement & a,
@@ -427,7 +528,7 @@ namespace virgo_ext {
 
 	baseFieldElement baseFieldElement::maxUnsigned(const baseFieldElement & a,
 			const baseFieldElement & b) {
-		assert(a.cleartext && b.cleartext);
+		assert(a.type == cleartext && b.type == cleartext);
 		return a < b ? b : a;
 	}
 
@@ -510,7 +611,7 @@ namespace virgo_ext {
 	}
 	
 	ostream & operator<<(ostream & out, const baseFieldElement & c) {
-		if(!c.cleartext) out << "(Encrypted)";
+		if(c.type == ciphertext) out << "(Encrypted)";
 		else out << '(' << c.elem[0] << ',' << c.elem[1] << ')';
 		return out;
 	}
@@ -567,7 +668,7 @@ namespace virgo_ext {
 		baseFieldElement ret;
 		ret.elem[0] = lo;
 		ret.elem[1] = hi;
-		if(!cleartext){
+		if(type == ciphertext){
 			helib::Ctxt tmp(*(elemHE[1])); // tmp = elem[1]
 			tmp.negate(); // tmp = (mod - elem[1])
 			ret.elemHE[1] = new helib::Ctxt(tmp);
@@ -578,8 +679,20 @@ namespace virgo_ext {
 			ret.elemHE[0]->negate(); // (mod - elem[0])
 			ret.elemHE[0]->addCtxt(tmp); // (mod - elem[0]) + (mod - elem[1]);
 			ret.elemHE[0]->multByConstant(3l); // 3*((mod - elem[0]) + (mod - elem[1]));
-			ret.cleartext = false;
+			ret.type = ciphertext;
 			__DEBUG_CHECK_OTHER(ret);
+		}else if(type == packed_cleartext){
+			helib::Ptxt<helib::BGV> tmp(*(elemCT[1])); // tmp = elem[1]
+			tmp.negate(); // tmp = (mod - elem[1])
+			ret.elemCT[1] = new helib::Ptxt<helib::BGV>(tmp);
+			*(ret.elemCT[1]) *= 3l; // 3*(mod - elem[1])
+			ret.elemCT[1]->addConstant(*(elemCT[0])); // elem[0] + 3*(mod - elem[1])
+
+			ret.elemCT[0] = new helib::Ptxt<helib::BGV>(*(elemCT[0]));
+			ret.elemCT[0]->negate(); // (mod - elem[0])
+			ret.elemCT[0]->addConstant(tmp); // (mod - elem[0]) + (mod - elem[1]);
+			*(ret.elemCT[0]) *= 3l; // 3*((mod - elem[0]) + (mod - elem[1]));
+			ret.type = packed_cleartext;
 		}
 		return ret;
 	}

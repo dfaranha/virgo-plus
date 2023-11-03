@@ -326,21 +326,28 @@ void test_HE_field_arithmetic(const helib::PubKey &pk) {
 //   a.print(stdout);
 
 	for (int i = 0; i < 1; i++) {
-    auto rnd_ct = gen_rnd_input(pk);
+        auto rnd_ct = gen_rnd_input(pk);
 		a = fieldElement(rnd_ct);
-    assert(!a.elem[0].cleartext);
+        assert(a.elem[0].type == ciphertext);
 		b = fieldElement::random();
 		d = 0;
 
 		c = a + b;
 		d = b + a;
     baseFieldElement::verifier_mode = true;
+        uint8_t buffer[32];
+        c.hash(buffer);
+        c.decrypt();
+        d.decrypt();
 		assert(c == d);
 
 
 		c = fieldElement::random();
 		d = (a + b) + c;
 		e = a + (b + c);
+        d.decrypt();
+        e.decrypt();
+        a.decrypt();
 		assert(d == e);
 		assert(d != a);
 
@@ -348,20 +355,30 @@ void test_HE_field_arithmetic(const helib::PubKey &pk) {
     auto x = baseFieldElement(rnd_ct);
 		auto y = baseFieldElement(-3, 1);
 		auto z = x.mulNor();
-		assert(x * y == z);
+        auto xy = x * y;
+        xy.decrypt();
+        z.decrypt();
+		assert(xy == z);
 
 		c = a * b;
 		d = b * a;
+        c.decrypt();
+        d.decrypt();
 		assert(c == d);
 
 		c = fieldElement::random();
 		d = (a * b) + (a * c);
 		e = a * (b + c);
+        d.decrypt();
+        e.decrypt();
 		assert(d == e);
 
 		c = fieldElement::random();
 		d = (a * b) * c;
 		e = a * (b * c);
+        d.decrypt();
+        e.decrypt();
+        a.decrypt();
 		assert(d == e);
 		assert(d != a);
 	}
@@ -374,7 +391,7 @@ void he_test(){
   // he setup
   const uint64_t p = 9007182074871809ULL;
   helib::Context context = helib::ContextBuilder<helib::BGV>()
-                          .m(128).p(p).r(1).bits(650).c(2).build();
+                          .m(128).p(p).r(1).bits(2000).c(2).build();
 
   helib::SecKey sk(context);
   sk.GenSecKey();
@@ -413,14 +430,18 @@ void he_test(){
 	
 	/* Verifier. */
   baseFieldElement::verifier_mode = true;
-	int proof_size;
-	double v_time, p_time;
-	auto processed = public_array_prepare_generic(public_array.data(), log_length);
-	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
-		std::cout << "Verification pass in the poly commitment!" << endl;
-	}
+  int proof_size;
+  double v_time, p_time;
+  auto processed = public_array_prepare_generic(public_array.data(), log_length);
+  if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
+      std::cout << "Verification pass in the poly commitment!" << endl;
+      cout << "Time: " << v_time << endl;
+		cout << "Proof_size: " << proof_size << endl;
+		cout << "Number of Decryptions: " << virgo_ext::baseFieldElement::num_of_decryptions << endl;
+    cout << "Number of Decryptions: " << virgo_ext::__glb_c1 << ", "<< virgo_ext::__glb_c2 << ", "<< virgo_ext::__glb_c3 << ", "<< virgo_ext::__glb_c4 << ", "<< virgo_ext::__glb_c5 << "\n";
+  }
 
-	fri::delete_self();
+  fri::delete_self();
   return;
 }
 
@@ -475,6 +496,8 @@ int main(int argc, char **argv) {
 	auto processed = public_array_prepare_generic(public_array.data(), log_length);
 	if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
 		std::cout << "Verification pass in the poly commitment!" << endl;
+
+
 	}
 
 	fri::delete_self();

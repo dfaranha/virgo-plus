@@ -17,9 +17,9 @@ namespace virgo_ext {
 
 	fieldElement::fieldElement() {
 		elem[0] = elem[1] = elem[2] = baseFieldElement(0);
-		assert(elem[0].cleartext);
-		assert(elem[1].cleartext);
-		assert(elem[2].cleartext);
+		assert(elem[0].type == cleartext);
+		assert(elem[1].type == cleartext);
+		assert(elem[2].type == cleartext);
 	}
 	
 	fieldElement::fieldElement(const fieldElement & b) {
@@ -34,6 +34,12 @@ namespace virgo_ext {
 			elem[i].hash(&(tmp[32*i]));
 		}
 		my_hhash(tmp, 32*3, buffer);
+	}
+
+	void fieldElement::decrypt(){
+		for (size_t i = 0; i < 3; i++){
+			elem[i].decrypt();
+		}
 	}
 
 	fieldElement::fieldElement(long long x) {
@@ -330,7 +336,7 @@ namespace virgo_ext {
 
 	char *fieldElement::toString() const {
 		char *s = new char[150];
-		assert(this->elem[0].cleartext);
+		assert(this->elem[0].type == cleartext);
 		 sprintf(s, "(%llu, %llu, %llu, %llu, %llu, %llu)", this->elem[0].elem[0], this->elem[0].elem[1], this->elem[1].elem[0], this->elem[1].elem[1], this->elem[2].elem[0], this->elem[2].elem[1]);
 		 return s;
 	}

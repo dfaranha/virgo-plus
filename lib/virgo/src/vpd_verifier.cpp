@@ -5,9 +5,9 @@
 #include "RS_polynomial.h"
 #include "poly_commit.h"
 #include "fft_circuit_GKR.h"
-
-
 namespace virgo_ext {
+	uint64_t __glb_c1 = 0, __glb_c2 = 0, __glb_c3 = 0, __glb_c4 = 0, __glb_c5 = 0;
+
 	static int mylog(long long x) {
 		for (int i = 0; i < 64; ++i) {
 			if ((1LL << i) == x)
@@ -258,6 +258,10 @@ namespace virgo_ext {
                                      (alpha.first[j].first - alpha.first[j].second) * inv_2 * com.randomness[i] *
                                      inv_mu;
 
+                        p_val.decrypt();
+                        beta.first[j].first.decrypt();
+                        beta.first[j].second.decrypt();
+                        __glb_c1++;
                         if (p_val != beta.first[j].first && p_val != beta.first[j].second) {
                             // printf("p_val: \n");
                             // p_val.print(stdout);
@@ -277,7 +281,7 @@ namespace virgo_ext {
                     t1 = std::chrono::high_resolution_clock::now();
                     time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
                     //This will not added into v time since the fft gkr already give the result, we didn't have time to integrate the fft gkr into the main body, so we have the evaluation code here
-                    //v_time += time_span.count();
+                    v_time += time_span.count();
                 } else {
                     t1 = std::chrono::high_resolution_clock::now();
                     time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
@@ -298,36 +302,44 @@ namespace virgo_ext {
                         return false;
 
                     auto inv_mu = fieldElement::fastPow(root_of_unity, pow / 2).inv();
-                    t1 = std::chrono::high_resolution_clock::now();
-                    time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
-                    v_time += time_span.count();
                     for (int j = 0; j < slice_count; ++j) {
                         auto p_val_0 = (alpha.first[j].first + alpha.first[j].second) * inv_2 +
                                        (alpha.first[j].first - alpha.first[j].second) * inv_2 * com.randomness[i] *
                                        inv_mu;
-                        auto p_val_1 = (alpha.first[j].first + alpha.first[j].second) * inv_2 +
-                                       (alpha.first[j].second - alpha.first[j].first) * inv_2 * com.randomness[i] *
-                                       inv_mu;
-                        if (p_val_0 != beta.first[j].first && p_val_0 != beta.first[j].second &&
-                            p_val_1 != beta.first[j].first && p_val_1 != beta.first[j].second) {
+                        p_val_0.decrypt();
+                        beta.first[j].first.decrypt();
+                        beta.first[j].second.decrypt();
+                        __glb_c2++;
+                        if (p_val_0 != beta.first[j].first && p_val_0 != beta.first[j].second) {
                             fprintf(stderr, "Fri check consistency %d round fail\n", i);
                             return false;
                         }
                     }
+                    t1 = std::chrono::high_resolution_clock::now();
+                    time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
+                    v_time += time_span.count();
                 }
             }
             delete[] pre_alpha_1.second.first;
             //CHECK last rs code
+            t0 = std::chrono::high_resolution_clock::now();
             for (int i = 0; i < slice_count - 1; ++i) {
                 auto tmplate = fri::cpd.rs_codeword[com.mx_depth - 1][0 << (log_slice_number + 1) | i << 1 | 0];
+                tmplate.decrypt();
+                __glb_c3++;
                 for (int j = 0; j < (1 << (rs_code_rate - 1)); ++j) {
+                    fri::cpd.rs_codeword[com.mx_depth - 1][j << (log_slice_number + 1) | i << 1 | 0].decrypt();
+                    __glb_c4++;
                     if (fri::cpd.rs_codeword[com.mx_depth - 1][j << (log_slice_number + 1) | i << 1 | 0] != tmplate) {
                         fprintf(stderr, "Fri rs code check fail\n");
                         return false;
                     }
                 }
             }
+            fri::cpd.rs_codeword_msk[com.mx_depth - 1][0].decrypt();
             for (int j = 1; j < (1 << rs_code_rate); ++j){
+                fri::cpd.rs_codeword_msk[com.mx_depth - 1][j].decrypt();
+                    __glb_c5++;
                 if (fri::cpd.rs_codeword_msk[com.mx_depth - 1][j] !=
                     fri::cpd.rs_codeword_msk[com.mx_depth - 1][j - 1]) {
                     fprintf(stderr, "Fri msk rs code check fail\n");
@@ -335,6 +347,9 @@ namespace virgo_ext {
                 }
 
             }
+            t1 = std::chrono::high_resolution_clock::now();
+            time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
+            v_time += time_span.count();
         }
         return true;
     }
