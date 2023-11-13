@@ -42,6 +42,18 @@ namespace virgo_ext {
 		}
 	}
 
+	void fieldElement::bootstrap(){
+		for (size_t i = 0; i < 3; i++){
+			elem[i].bootstrap();
+		}
+	}
+
+	void fieldElement::modDown(){
+		for (size_t i = 0; i < 3; i++){
+			elem[i].modDown();
+		}
+	}
+
 	fieldElement::fieldElement(long long x) {
 		elem[0] = baseFieldElement(x);
 		elem[1] = elem[2] = baseFieldElement(0);
@@ -184,6 +196,14 @@ namespace virgo_ext {
 		assert(elem[1] == 0);
 		assert(elem[2] == 0);
 		return (elem[0].getBit(i));
+	}
+
+	uint64_t fieldElement::getDepth() {
+		uint64_t max_depth = 0;
+		for (size_t i = 0; i < 3; i++){
+			max_depth = max_depth > elem[i].depth ? max_depth : elem[i].depth;
+		}
+		return max_depth;
 	}
 	
 	bool fieldElement::operator<(const fieldElement & other) const {

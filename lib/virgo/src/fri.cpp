@@ -309,6 +309,7 @@ namespace virgo_ext {
 
         auto t0 = std::chrono::high_resolution_clock::now();
         int log_leaf_size = log_slice_number + 1;
+        cout << "Beginning of Folding. Depth: " << previous_witness[0].getDepth() << "\n";
         for (int i = 0; i < nxt_witness_size; ++i) {
             int qual_res_0 = i;
             int qual_res_1 = ((1 << (log_current_witness_size_per_slice - 1)) + i) / 2;
@@ -325,10 +326,12 @@ namespace virgo_ext {
                 //BUG BUG BUG, to check
                 assert((i << log_slice_number | j) < nxt_witness_size * poly_commit::slice_count);
                 cpd.rs_codeword[current_step_no][i << log_slice_number | j] =
-                        inv_2 * ((previous_witness[real_pos] + previous_witness[real_pos | 1])
-                                 + inv_mu * r * (previous_witness[real_pos] - previous_witness[real_pos | 1]));
+                                  (inv_2 * (previous_witness[real_pos] + previous_witness[real_pos | 1])
+                                 + inv_2 * inv_mu * r * (previous_witness[real_pos] - previous_witness[real_pos | 1]));
+                cpd.rs_codeword[current_step_no][i << log_slice_number | j].bootstrap();
             }
         }
+        cout << "End of Folding. Depth: " << cpd.rs_codeword[current_step_no][0].getDepth() << "\n";
         for (int i = 0; i < nxt_witness_size; ++i) {
             L_group[i] = L_group[i * 2];
         }

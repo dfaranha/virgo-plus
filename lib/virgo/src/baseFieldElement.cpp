@@ -28,6 +28,7 @@ namespace virgo_ext {
 	int baseFieldElement::multCounter, baseFieldElement::addCounter;
 	bool baseFieldElement::isCounting;
 	bool baseFieldElement::isSumchecking;
+	op_count baseFieldElement::operations[2];
 
 	bool baseFieldElement::verifier_mode = false;
   helib::SecKey * baseFieldElement::sk = NULL;
@@ -76,7 +77,8 @@ namespace virgo_ext {
 		}else if(type == ciphertext){
 			std::stringstream tmp;
 			elemHE[0]->parts[0].writeTo(tmp);
-			elemHE[0]->parts[1].writeTo(tmp);
+			// to allow dummy encrypt
+			if(elemHE[0]->parts.size() > 1)	elemHE[0]->parts[1].writeTo(tmp);
 			// elemHE[1] is sometimes a trivial encryption of 0, skip it
 			if(elemHE[1]->parts.size() > 0)	elemHE[1]->parts[0].writeTo(tmp);
 			if(elemHE[1]->parts.size() > 1)	elemHE[1]->parts[1].writeTo(tmp);
@@ -86,6 +88,29 @@ namespace virgo_ext {
 		}else if(type == packed_cleartext){
 			memcpy(buffer, he_hash, 32);
 		}
+	}
+
+	// Emulates a bootstrap. 
+	// The goal is to be able to test the verifier's performance without having to wait for a slow prover
+	void baseFieldElement::bootstrap(){
+		if(type != ciphertext) return;
+		if(verifier_mode){
+			throw std::logic_error("Bootstrap emulation should not be use by the verifier.");
+		}
+		const helib::PubKey& pk = *(sk);
+		helib::Ptxt<helib::BGV> p_tmp(sk->getContext());
+		sk->Decrypt(p_tmp, *(elemHE[0]));
+		pk.Encrypt(*(elemHE[0]), p_tmp);
+
+		sk->Decrypt(p_tmp, *(elemHE[1]));
+		pk.Encrypt(*(elemHE[1]), p_tmp);
+	}
+
+	void baseFieldElement::modDown(){
+		if(type != ciphertext) return;
+		helib::IndexSet is(6,8);
+  	elemHE[0]->modDownToSet(is);
+  	elemHE[1]->modDownToSet(is);
 	}
 	
 	baseFieldElement::baseFieldElement(const baseFieldElement & b) {
@@ -100,6 +125,7 @@ namespace virgo_ext {
 			memcpy(he_hash, b.he_hash, 32);
 		}
 		type = b.type;
+		depth = b.depth;
 	}
 
 	baseFieldElement::baseFieldElement(helib::Ctxt &x) {
@@ -133,15 +159,23 @@ namespace virgo_ext {
 			if (mod <= ret.elem[i])
 				ret.elem[i] = ret.elem[i] - mod;
 		}
+		ret.depth = depth > other.depth ? depth : other.depth;
 		if(type == ciphertext || other.type == ciphertext){
 			ret.type = ciphertext;
 			auto a = type != ciphertext ? &other : &(*this);
 			auto b = type == ciphertext ? &other : &(*this);
 			for (size_t i = 0; i < 2; i++){
 				ret.elemHE[i] = new helib::Ctxt(*(a->elemHE[i]));
-				if(b->type == cleartext) ret.elemHE[i]->addConstant((long) b->elem[i]);
-				else if(b->type == ciphertext) ret.elemHE[i]->addCtxt(*(b->elemHE[i]));
-				else ret.elemHE[i]->addConstant(*(b->elemCT[i]));
+				if(b->type == cleartext) {
+					ret.elemHE[i]->addConstant((long) b->elem[i]);
+					operations[int(verifier_mode)].addC[ret.depth]++;
+				} else if(b->type == ciphertext){ 
+					ret.elemHE[i]->addCtxt(*(b->elemHE[i]));
+					operations[int(verifier_mode)].add[ret.depth]++;
+				} else {
+					ret.elemHE[i]->addConstant(*(b->elemCT[i]));
+					operations[int(verifier_mode)].addC[ret.depth]++;
+				}
 			}
 			__DEBUG_CHECK_OTHER(ret);
 		}else if(type == packed_cleartext || other.type == packed_cleartext){
@@ -152,6 +186,7 @@ namespace virgo_ext {
 				ret.elemCT[i] = new helib::Ptxt<helib::BGV>(*(a->elemCT[i]));
 				if(b->type == cleartext) ret.elemCT[i]->addConstant((long) b->elem[i]);
 				else ret.elemCT[i]->addConstant(*(b->elemCT[i]));
+				operations[int(verifier_mode)].addC[ret.depth]++;
 			}
 		}
 		return ret;
@@ -175,9 +210,16 @@ namespace virgo_ext {
 			auto b = type == ciphertext ? &other : &(*this);
 			for (size_t i = 0; i < 2; i++){
 				ret.elemHE[i] = new helib::Ctxt(*(a->elemHE[i]));
-				if(b->type == cleartext) ret.elemHE[i]->addConstant((long) b->elem[i], true);
-				else if(b->type == ciphertext) ret.elemHE[i]->addCtxt(*(b->elemHE[i]), true);
-				else ret.elemHE[i]->addConstant(*(b->elemCT[i]), true);
+				if(b->type == cleartext) {
+					ret.elemHE[i]->addConstant((long) b->elem[i], true);
+					operations[int(verifier_mode)].addC[ret.depth]++;
+				} else if(b->type == ciphertext){
+					ret.elemHE[i]->addCtxt(*(b->elemHE[i]), true);
+					operations[int(verifier_mode)].add[ret.depth]++;
+				}else{
+					ret.elemHE[i]->addConstant(*(b->elemCT[i]), true);
+					operations[int(verifier_mode)].addC[ret.depth]++;
+				}
 				if(type == cleartext) ret.elemHE[i]->negate();
 			}
 			__DEBUG_CHECK_OTHER(ret);
@@ -190,8 +232,10 @@ namespace virgo_ext {
 				if(b->type == cleartext) *(ret.elemCT[i]) -= (long) b->elem[i];
 				else *(ret.elemCT[i]) -= *(b->elemCT[i]);
 				if(type == cleartext) ret.elemCT[i]->negate();
+				operations[int(verifier_mode)].addC[ret.depth]++;
 			}
 		}
+		ret.depth = depth > other.depth ? depth : other.depth;
 		return ret;
 	}
 
@@ -223,6 +267,7 @@ namespace virgo_ext {
 			t1 -= mod;
 		ret.elem[1] = t1;
 
+		ret.depth = depth > other.depth ? depth : other.depth;
 		if(type == ciphertext || other.type == ciphertext){
 			ret.type = ciphertext;
 			auto a = type != ciphertext ? &other : &(*this);
@@ -254,7 +299,13 @@ namespace virgo_ext {
 			tmp.multByConstant(3l);// tmp = - 3bd
 
 			ret.elemHE[0]->addCtxt(tmp); // // ret[0] = ac - 3*bd
+			operations[int(verifier_mode)].add[a->depth]				+= 1;
+			operations[int(verifier_mode)].add[ret.depth + 1]  += 3;
+			operations[int(verifier_mode)].mulC[a->depth]			+= 1;
+			operations[int(verifier_mode)].mulC[ret.depth] 		+= 2;
+			operations[int(verifier_mode)].mulC[ret.depth + 1] += 1;
 			__DEBUG_CHECK_OTHER(ret);
+			ret.depth++;
 		}else if(type == packed_cleartext || other.type == packed_cleartext){
 			ret.type = packed_cleartext;
 			auto a = type != packed_cleartext ? &other : &(*this);
@@ -287,6 +338,11 @@ namespace virgo_ext {
 			tmp *= 3l;// tmp = - 3bd
 
 			ret.elemCT[0]->addConstant(tmp); // // ret[0] = ac - 3*bd
+			operations[int(verifier_mode)].addC[a->depth]		  += 1;
+			operations[int(verifier_mode)].addC[ret.depth + 1] += 3;
+			operations[int(verifier_mode)].mulC[a->depth]			+= 1;
+			operations[int(verifier_mode)].mulC[ret.depth] 		+= 2;
+			operations[int(verifier_mode)].mulC[ret.depth + 1] += 1;
 		}
 		return ret;
 	}
@@ -312,6 +368,20 @@ namespace virgo_ext {
 		while (order % 2 == 0) {
 			__max_order++;
 			order = order >> 1;
+		}
+		// op counting
+		const uint64_t MAX_DEPTH = 1000;
+		for (size_t i = 0; i < 2; i++){
+			operations[i].addC = new uint64_t[MAX_DEPTH];
+			memset(operations[i].addC, 0, MAX_DEPTH*sizeof(uint64_t));
+			operations[i].add = new uint64_t[MAX_DEPTH];
+			memset(operations[i].add, 0, MAX_DEPTH*sizeof(uint64_t));
+			operations[i].mul = new uint64_t[MAX_DEPTH];
+			memset(operations[i].mul, 0, MAX_DEPTH*sizeof(uint64_t));
+			operations[i].mulC = new uint64_t[MAX_DEPTH];
+			memset(operations[i].mulC, 0, MAX_DEPTH*sizeof(uint64_t));
+			operations[i].decryption = new uint64_t[MAX_DEPTH];
+			memset(operations[i].decryption, 0, MAX_DEPTH*sizeof(uint64_t));
 		}
 	}
 
@@ -343,6 +413,7 @@ namespace virgo_ext {
 		sk->Decrypt((*(elemCT[1])), *(elemHE[1]));
 		delete elemHE[0];
 		delete elemHE[1];
+		operations[int(verifier_mode)].decryption[depth]+=2;
 		type = packed_cleartext;
 	}
 
@@ -405,6 +476,7 @@ namespace virgo_ext {
 			delete elemCT[1];
 		}
 		type = other.type;
+		depth = other.depth;
 		__DEBUG_CHECK_OTHER(other);
 		__DEBUG_CHECK;
 		return *this;
@@ -680,6 +752,7 @@ namespace virgo_ext {
 			ret.elemHE[0]->addCtxt(tmp); // (mod - elem[0]) + (mod - elem[1]);
 			ret.elemHE[0]->multByConstant(3l); // 3*((mod - elem[0]) + (mod - elem[1]));
 			ret.type = ciphertext;
+			operations[int(verifier_mode)].add[depth] += 2;
 			__DEBUG_CHECK_OTHER(ret);
 		}else if(type == packed_cleartext){
 			helib::Ptxt<helib::BGV> tmp(*(elemCT[1])); // tmp = elem[1]
@@ -692,8 +765,10 @@ namespace virgo_ext {
 			ret.elemCT[0]->negate(); // (mod - elem[0])
 			ret.elemCT[0]->addConstant(tmp); // (mod - elem[0]) + (mod - elem[1]);
 			*(ret.elemCT[0]) *= 3l; // 3*((mod - elem[0]) + (mod - elem[1]));
+			operations[int(verifier_mode)].addC[depth] += 2;
 			ret.type = packed_cleartext;
 		}
+		ret.depth = depth;
 		return ret;
 	}
 }

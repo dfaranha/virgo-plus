@@ -315,6 +315,7 @@ helib::Ctxt gen_rnd_input(const helib::PubKey &pk){
   }
   helib::Ctxt ctxt(pk);
   pk.Encrypt(ctxt, ptxt);
+    // ctxt.DummyEncrypt(ptxt.getPolyRepr());
   return ctxt;
 }
 
@@ -383,26 +384,52 @@ void test_HE_field_arithmetic(const helib::PubKey &pk) {
 		assert(d != a);
 	}
 	std::cout << "Field tests pass. " << endl;
+    baseFieldElement::verifier_mode = false;
 	return;
 }
 
+void print_op_count(){
+    const uint64_t MAX_DEPTH = 1000;
+    cout << "Prover:\nadd = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[0].add[i] << ", ";
+    cout << "]\naddC = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[0].addC[i] << ", ";
+    cout << "]\nmul = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[0].mul[i] << ", ";
+    cout << "]\nmulC = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[0].mulC[i] << ", ";
+    cout << "]\ndecryption = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[0].decryption[i] << ", ";
+    cout << "]\nVerifier:\nadd = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[1].add[i] << ", ";
+    cout << "]\naddC = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[1].addC[i] << ", ";
+    cout << "]\nmul = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[1].mul[i] << ", ";
+    cout << "]\nmulC = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[1].mulC[i] << ", ";
+    cout << "]\ndecryption = [";
+    for (size_t i = 0; i < MAX_DEPTH; i++) cout << virgo_ext::baseFieldElement::operations[1].decryption[i] << ", ";
+    cout << "]\n";
+}
 
 void he_test(){
   // he setup
   const uint64_t p = 9007182074871809ULL;
   helib::Context context = helib::ContextBuilder<helib::BGV>()
-                          .m(128).p(p).r(1).bits(2000).c(2).build();
+                          .m(16).p(p).r(1).bits(450).c(2).build();
 
   helib::SecKey sk(context);
   sk.GenSecKey();
   helib::addSome1DMatrices(sk);
   const helib::PubKey& pk = sk;
+  context.printout();
 
   // fri setup
   F::init(p, 0x3afb671c0f514);
   baseFieldElement::sk = &sk;
 
-  test_HE_field_arithmetic(pk);
+//   test_HE_field_arithmetic(pk);
 
   poly_commit::poly_commit_prover prover;
 	poly_commit::poly_commit_verifier verifier;
@@ -411,7 +438,7 @@ void he_test(){
 	fri::delete_self();
 
   F *all_sum = new F[slice_number + 1];
-	int log_length = 7;
+	int log_length = 8;
 	auto all_pri_mask = vector<F>(1, F_ZERO);
 	auto all_pub_mask = vector<F>(1, F_ZERO);
 
@@ -424,21 +451,26 @@ void he_test(){
 		// private_array[i] = fieldElement::random();
 		public_array[i] = fieldElement::random();
 	}
+    cout << "commit_private_array\n";
 	auto merkle_root_l = prover.commit_private_array(private_array.data(), log_length, all_pri_mask);
+    cout << "inner_prod\n";
 	auto inner_product_sum = prover.inner_prod(private_array.data(), public_array.data(), private_array.size());
+    cout << "commit_public_array\n";
 	auto merkle_root_h = prover.commit_public_array(all_pub_mask, public_array.data(), log_length, inner_product_sum, all_sum);
 	
 	/* Verifier. */
-  baseFieldElement::verifier_mode = true;
   int proof_size;
   double v_time, p_time;
+  cout << "public_array_prepare_generic\n";
   auto processed = public_array_prepare_generic(public_array.data(), log_length);
+  cout << "verify_poly_commitment\n";
   if (verifier.verify_poly_commitment(all_sum, log_length, processed, all_pub_mask, v_time, proof_size, p_time, merkle_root_l, merkle_root_h)) {
       std::cout << "Verification pass in the poly commitment!" << endl;
       cout << "Time: " << v_time << endl;
 		cout << "Proof_size: " << proof_size << endl;
 		cout << "Number of Decryptions: " << virgo_ext::baseFieldElement::num_of_decryptions << endl;
     cout << "Number of Decryptions: " << virgo_ext::__glb_c1 << ", "<< virgo_ext::__glb_c2 << ", "<< virgo_ext::__glb_c3 << ", "<< virgo_ext::__glb_c4 << ", "<< virgo_ext::__glb_c5 << "\n";
+    print_op_count();
   }
 
   fri::delete_self();

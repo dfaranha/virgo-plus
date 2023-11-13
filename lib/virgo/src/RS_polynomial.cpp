@@ -72,13 +72,15 @@ namespace virgo_ext {
 									x_arr[k] * __dst[pre][double_k << (dep + 1) | (1 << dep) | j];
 							__dst[cur][k << dep | j] = l_value + r_value;
 							__dst[cur][(k + blk_size / 2) << dep | j] = l_value - r_value;
+                            __dst[cur][k << dep | j].bootstrap();
+                            __dst[cur][(k + blk_size / 2) << dep | j].bootstrap();
 						}
 					}
 				}
             }
             delete[] x_arr;
         }
-
+        cout << "End of FFT. Depth: " << __dst[0][0].getDepth() << "\n";
         for (int i = 0; i < order; ++i)
             result[i] = __dst[0][i];
     }

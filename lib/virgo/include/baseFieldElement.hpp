@@ -18,6 +18,9 @@ namespace virgo_ext {
 
     enum element_type { cleartext, ciphertext, packed_cleartext };
     class baseFieldElementPacked;
+    typedef struct _op_count{
+		uint64_t * decryption, * add, * mul, * addC, * mulC;
+	} op_count;
 
     class baseFieldElement {
     public:
@@ -75,6 +78,8 @@ namespace virgo_ext {
 
         void hash(void * buffer);
         void decrypt();
+        void bootstrap();
+        void modDown();
 
         void print(::FILE *fileno) const;
         char *toString() const;
@@ -99,6 +104,9 @@ namespace virgo_ext {
         static int multCounter, addCounter;
         static bool isCounting;
         static bool isSumchecking;
+
+        static op_count operations[2];
+        uint64_t depth = 0;
 
         unsigned long long elem[2];
         helib::Ctxt * elemHE[2];

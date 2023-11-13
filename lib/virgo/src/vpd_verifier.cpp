@@ -102,7 +102,8 @@ namespace virgo_ext {
         auto com = p->commit_phase(log_length);
 
         int coef_slice_size = (1 << (log_length - log_slice_number));
-
+        
+        baseFieldElement::verifier_mode = true;
         for (int rep = 0; rep < 33; ++rep) {
             int slice_count = 1 << log_slice_number;
             slice_count++; //for masks
@@ -154,8 +155,10 @@ namespace virgo_ext {
                     t1 = std::chrono::high_resolution_clock::now();
                     time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
                     v_time += time_span.count();
+                    baseFieldElement::verifier_mode = false;
                     alpha_l = fri::request_init_value_with_merkle(s0_pow, s1_pow, new_size, 0);
                     alpha_h = fri::request_init_value_with_merkle(s0_pow, s1_pow, new_size, 1);
+                    baseFieldElement::verifier_mode = true;
 
                     proof_size += new_size; //both h and p
                     t0 = std::chrono::high_resolution_clock::now();
@@ -168,8 +171,10 @@ namespace virgo_ext {
                     t1 = std::chrono::high_resolution_clock::now();
                     time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
                     v_time += time_span.count();
-                    beta = fri::request_step_commit(0, pow / 2, new_size);
 
+                    baseFieldElement::verifier_mode = false;
+                    beta = fri::request_step_commit(0, pow / 2, new_size);
+                    baseFieldElement::verifier_mode = true;
                     proof_size += new_size;
 
                     t0 = std::chrono::high_resolution_clock::now();
@@ -292,8 +297,9 @@ namespace virgo_ext {
                     } else {
                         alpha = beta;
                     }
-
+                    baseFieldElement::verifier_mode = false;
                     beta = fri::request_step_commit(i, pow / 2, new_size);
+                    baseFieldElement::verifier_mode = true;
 
                     proof_size += new_size;
 
@@ -306,7 +312,7 @@ namespace virgo_ext {
                         auto p_val_0 = (alpha.first[j].first + alpha.first[j].second) * inv_2 +
                                        (alpha.first[j].first - alpha.first[j].second) * inv_2 * com.randomness[i] *
                                        inv_mu;
-                        p_val_0.decrypt();
+                        // p_val_0.decrypt();
                         beta.first[j].first.decrypt();
                         beta.first[j].second.decrypt();
                         __glb_c2++;

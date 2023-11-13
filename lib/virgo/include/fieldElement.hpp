@@ -29,6 +29,10 @@ namespace virgo_ext {
 
 		void hash(void * buffer);
 		void decrypt();
+		void bootstrap();
+		void modDown();
+
+        uint64_t getDepth();
 
         fieldElement operator+(const fieldElement &other) const;
 
